@@ -17,18 +17,133 @@
 #include "local.h"
 #include "acq.h"
 
+#include "sysdef.h"
 /** @todo pgm would far prefer C++, but not sure SL compat. */
+
+
+
+#ifdef ST40_ACQ
+#include <errno.h>
+#include <fcntl.h>
+#include <sched.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include "rtm-t_ioctl.h"
+#define HB_FILE "/dev/rtm-t.%d"
+#define HB_LEN	0x1000
+
+extern int errno;
+
+ACQ* createACQ(int lun)
+{
+	ACQ* acq = calloc(1, sizeof(ACQ));
+
+	acq->lun = lun;
+	acq->nai = LUN0_AI;
+	acq->ndi = LUN0_DI;
+	acq->nao = LUN0_AO;
+	acq->ndo = LUN0_DO;
+
+	acq->lbuf = calloc(VI_LEN, 1);
+}
+
+void* get_mapping(ACQ* acq) {
+	void* host_buffer;
+	char fname[80];
+	sprintf(fname, HB_FILE, acq->lun);
+	acq->fd = open(fname, O_RDWR);
+	if (acq->fd < 0){
+		perror(fname);
+		exit(errno);
+	}
+	host_buffer = mmap(0, HB_LEN, PROT_READ|PROT_WRITE, MAP_SHARED, acq->fd, 0);
+	if (host_buffer == (caddr_t)-1 ){
+		perror( "mmap" );
+	        exit(errno);
+	}
+	return host_buffer;
+}
+
 
 ACQ* acq_init(int lun)
 {
 	int ii;
+	struct XLLC_DEF xllc_def = {
+		.pa = RTM_T_USE_HOSTBUF,
+	};
+	xllc_def.len = VI_LEN;
+	ACQ* acq = createACQ(lun);
+
+	acq->VI = acq->AI = get_mapping(acq);
+	acq->DO = (unsigned*)(acq->AI+acq->nai);
+	acq->SPAD = (unsigned*)(acq->AI+acq->nai+acq->ndi);
+
+	if (ioctl(acq->fd, AFHBA_START_AI_LLC, &xllc_def)){
+		perror("ioctl AFHBA_START_AI_LLC");
+		exit(1);
+	}
+	dbg(1, "AI buf pa: 0x%08x len %d\n", xllc_def.pa, xllc_def.len);
+
+	acq->pai = xllc_def.pa;
+
+	acq->VO = acq->AO = (short*)((char*)acq->VI+HB_LEN);
+	acq->DO = (unsigned*)(acq->VO+acq->nao);
+
+	xllc_def.pa += HB_LEN;
+	xllc_def.len = VO_LEN;
+
+	if (ioctl(acq->fd, AFHBA_START_AO_LLC, &xllc_def)){
+		perror("ioctl AFHBA_START_AO_LLC");
+		exit(1);
+	}
+	dbg(1, "AO buf pa: 0x%08x len %d\n", xllc_def.pa, xllc_def.len);
+
+	acq->pao = xllc_def.pa;
+}
+void acq_IO(ACQ* acq)
+{
+	unsigned tl0 = acq->sample_count;
+	unsigned tl1;
+
+	memcpy(acq->lbuf, acq->VI, VI_LEN);
+	while((tl1 = *acq->SPAD) == tl0){
+		sched_yield();
+		memcpy(acq->lbuf, acq->VI, VI_LEN);
+	}
+	acq->sample_count = tl1;
+}
+
+void acq_terminate(ACQ* acq)
+{
+	munmap(acq->VI, HB_LEN);
+	close(acq->fd);
+}
+
+#else
+ACQ* createACQ(int lun)
+{
 	ACQ* acq = calloc(1, sizeof(ACQ));
 
-	acq->AI = calloc(128, SS);
-	acq->DI = calloc(1, 2*SS);
-	acq->AO = calloc(32, SS);
-	acq->DO = calloc(1, 2*SS);
+	acq->lun = lun;
+	acq->AI = calloc(LUN0_AI, SS); acq->nai = LUN0_AI;
+	acq->DI = calloc(LUN0_DI, US); acq->ndi = LUN0_DI;
+	acq->AO = calloc(LUN0_AO, SS); acq->nao = LUN0_AO;
+	acq->DO = calloc(LUN0_DO, US); acq->ndo = LUN0_DO;
 
+	acq->lbuf = calloc(VI_LEN, 1);
+}
+
+
+ACQ* acq_init(int lun)
+{
+	int ii;
+	ACQ* acq = createACQ(lun);
+	dbg(1, "acq_init STUB seed number init\n");
 	for (ii=0; ii<10; ii+=1){
 		acq->AI[ii]=125*ii;
 	}
@@ -43,3 +158,5 @@ void acq_terminate(ACQ* acq)
 {
 	/* free the memory. Actually, Linux can do this .. */
 }
+
+#endif

@@ -26,10 +26,10 @@
 #include <unistd.h>
 
 int N_iter = 100000;
-int sched_fifo_priority;
+
 int verbose;
 
-void goRealTime(void)
+void goRealTime(int sched_fifo_priority)
 {
         struct sched_param p = {};
         p.sched_priority = sched_fifo_priority;
@@ -67,7 +67,7 @@ void setAffinity(unsigned cpu_mask)
 static void ui(int argc, char* argv[])
 {
         if (getenv("RTPRIO")){
-                sched_fifo_priority = atoi(getenv("RTPRIO"));
+        	goRealTime(atoi(getenv("RTPRIO")));
         }
         if (getenv("VERBOSE")){
                 verbose = atoi(getenv("VERBOSE"));

@@ -36,10 +36,10 @@ pcs_sngl: test_mod_sngl.o ST40PCS.o acq.o linux_rt.o
 pcs_dual: test_mod_dual.o ST40PCS.o acq.o linux_rt.o
 	$(CC) $(CFLAGS) -o $@ $^
 	
-nul_sngl: test_acq_sngl.o ST40PCS_stub.o acq.o linux_rt.o
+nul_sngl: test_acq_sngl.o ST40PCS_stub.o acq_stub.o linux_rt.o
 	$(CC) $(CFLAGS) -o $@ $^
 	
-nul_dual: test_acq_dual.o ST40PCS_stub.o acq.o linux_rt.o
+nul_dual: test_acq_dual.o ST40PCS_stub.o acq_stub.o linux_rt.o
 
 	$(CC) $(CFLAGS) -o $@ $^
 

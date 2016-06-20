@@ -45,7 +45,7 @@ ST40PCS_terminate();
 
 acq: presents this interface:
 acq_init()
-acq_transfer(short* in, const short* out)
+acq_IO()
 acq_terminate()
 
 linux_rt presents this interface:

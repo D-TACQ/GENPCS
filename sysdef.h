@@ -46,6 +46,9 @@
 #define LUN1_AO 32
 #define LUN1_DO 1
 
+#define NSPAD	8		/* scratchpad, longs */
+#define VI_LEN	(LUN0_AI*SS + (LUN0_DI+NSPAD)*US)
 
+#define VO_LEN	(LUN0_AO*SS + (LUN0_DO)*US)
 
 #endif /* TE_SYSDEF_H_ */

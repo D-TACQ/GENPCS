@@ -23,6 +23,7 @@ typedef struct ACQ {
 
 	short* AI; 	int nai;
 	unsigned* DI; 	int ndi;		// words
+	unsigned* SPAD;				// scratchpad
 	unsigned sample_count;
 
 	short *AO; 	int nao;
@@ -32,6 +33,8 @@ typedef struct ACQ {
 	short *VO;
 	unsigned pai;
 	unsigned pao;
+
+	short* lbuf;			// local bounce buffer
 } ACQ;
 
 ACQ* acq_init(int lun);
