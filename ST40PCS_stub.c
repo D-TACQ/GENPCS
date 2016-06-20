@@ -21,9 +21,12 @@ void ST40PCS_initialize(void)
 {
 
 }
+
+/** fake "feedback algorithm" */
 void ST40PCS_step(void)
 {
-
+	ST40PCS_Y.DTACQOUT[0] = ST40PCS_U.DTACQIN[0];
+	ST40PCS_Y.DTACQOUT[1] = -ST40PCS_U.DTACQIN[0];
 }
 void ST40PCS_terminate(void)
 {
