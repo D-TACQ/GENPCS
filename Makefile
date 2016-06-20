@@ -2,16 +2,20 @@
 
 all: acq mod pcs
 
-acq:
+acq:	
+	make cleano
 	CFLAGS=-DST40_ACQ make $(DRYRUN) acq_sngl acq_dual
 
-mod:
+mod:	
+	make cleano
 	make CFLAGS=-DST40_MOD $(DRYRUN) mod_sngl mod_dual
 	
-pcs:
+pcs:	
+	make cleano
 	make CFLAGS="-DST40_ACQ -DST40_MOD " $(DRYRUN) pcs_sngl pcs_dual
 
-nul:
+nul:	
+	make cleano
 	make $(DRYRUN) nul_sngl nul_dual
 
 acq_sngl: test_acq_sngl.o ST40PCS_stub.o acq.o linux_rt.o 
@@ -53,6 +57,12 @@ test_mod_dual.o: test_dual.c
 
 acq_stub.o: acq.c	
 	$(CC) $(CFLAGS) -c -o $@ $^
-	
-clean:
+
+# cleano : remove conditional compile object (for clean ident)
+cleano: FORCE 
+	rm -Rf test*.o
+		
+clean: FORCE
 	rm -f *.o *_sngl *_dual
+	
+FORCE:
