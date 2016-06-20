@@ -42,9 +42,10 @@ void goRealTime(int sched_fifo_priority)
 }
 void setAffinity(unsigned cpu_mask)
 {
+	int cpu;
         cpu_set_t cpu_set;
         CPU_ZERO(&cpu_set);
-        for (int cpu = 0; cpu < 32; ++cpu){
+        for (cpu = 0; cpu < 32; ++cpu){
                 if ((1<<cpu) &cpu_mask){
                         CPU_SET(cpu, &cpu_set);
                 }
