@@ -1,0 +1,52 @@
+@mainpage
+README for ST40PCS
+# There are 3 runtime configs:
+acq : acq hardware test, NO SIMULINK   "Clyde"
+mod : model test, NO hardware, with SIMULINK "Rhone"
+pcs : acq+mod, the final product, with ACQ and SIMULINK  "Thames"
+nul : no hardware, no model : tests the model compile
+
+# There are 2 configurations
+sngl : single box
+dual : dual box
+
+# total 6 executables
+acq-sngl, acq-dual
+mod-sngl, mod-dual	# in practise, maybe there's only ONE mod
+pcs-sngl, pcs-dual
+
+# ACQ is only available when ACQ box is present, otherwise use ACQ_stub
+# the MODEL is only available on a machine with a valid Simulink license,
+# otherwise use ST40PCS_stub
+
+# We also propose two boxes. There's a single box test and a dual box test
+# For simplicity, both boxes are considered identical, with
+# 128AI, 32AO, 32DIO
+# Physically, the boxes may have
+# Box 1 : 128AI, 32 DIO
+# Box 2 :  64AI, 32 AO, 32DIO
+# However, if they both fake the missing functions, then the boxes are 
+# interchangeable, and we only need two types of test
+# sngl : SiNGLe box
+# dual : DUAL box
+# Ideally, each box has some AI and some AO, then we can run a "real" external 
+# test using a scope. 
+
+# A single module linux_rt.c takes care of the real time issues and common 
+# "User Interface".
+# A single module acq_shim.c takes care of interfacing to the acq.
+
+mod: presents this interface:
+ST40PCS_U;
+ST40PCS_Y;
+ST40PCS_initialize();
+ST40PCS_step();
+ST40PCS_terminate();
+
+acq: presents this interface:
+acq_init()
+acq_transfer(short* in, const short* out)
+acq_terminate()
+
+linux_rt presents this interface:
+linux_rt_init() 
