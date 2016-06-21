@@ -91,7 +91,7 @@ ACQ* acq_init(int lun)
 	ACQ* acq = createACQ(lun);
 
 	acq->VI = acq->AI = get_mapping(acq);
-	acq->DO = (unsigned*)(acq->AI+acq->nai);
+	acq->DI = (unsigned*)(acq->AI+acq->nai);
 	acq->SPAD = (unsigned*)(acq->AI+acq->nai+acq->ndi);
 
 	if (ioctl(acq->fd, AFHBA_START_AI_LLC, &xllc_def)){
