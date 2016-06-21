@@ -107,6 +107,7 @@ ACQ* acq_init(int lun)
 }
 void acq_IO(ACQ* acq)
 {
+	static int iter;
 	unsigned tl0 = acq->sample_count;
 	unsigned tl1;
 
@@ -116,6 +117,14 @@ void acq_IO(ACQ* acq)
 		memcpy(acq->lbuf, acq->VI, VI_LEN);
 	}
 	acq->sample_count = tl1;
+
+	if (iter++ < 5 && verbose > 2){
+		FILE* fd = popen(
+			"hexdump -e '\"%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
+			"w");
+		fwrite(acq->VI, 1, VI_LEN+2, fd);
+		pclose(fd);
+	}
 }
 
 void acq_terminate(ACQ* acq)

@@ -40,7 +40,9 @@ nul_sngl: test_acq_sngl.o ST40PCS_stub.o acq_stub.o linux_rt.o
 	$(CC) $(CFLAGS) -o $@ $^
 	
 nul_dual: test_acq_dual.o ST40PCS_stub.o acq_stub.o linux_rt.o
-
+	$(CC) $(CFLAGS) -o $@ $^
+	
+pig: pig.o linux_rt.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 test_acq_sngl.o: test_sngl.c
