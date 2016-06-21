@@ -46,16 +46,18 @@ struct TS {
 	unsigned pollcat;
 };
 
+/* hack assumes key name and symbol name for default are the SAME .. */
+#define GETENVINT(key) getenv(#key)? atoi(getenv(#key)): key
 
 ACQ* createACQ(int lun)
 {
 	ACQ* acq = calloc(1, sizeof(ACQ));
 
 	acq->lun = lun;
-	acq->nai = LUN0_AI;
-	acq->ndi = LUN0_DI;
-	acq->nao = LUN0_AO;
-	acq->ndo = LUN0_DO;
+	acq->nai = GETENVINT(LUN0_AI);
+	acq->ndi = GETENVINT(LUN0_DI);
+	acq->nao = GETENVINT(LUN0_AO);
+	acq->ndo = GETENVINT(LUN0_DO);
 
 	acq->lbuf = calloc(VI_LEN, 1);
 
@@ -87,13 +89,17 @@ ACQ* acq_init(int lun)
 	struct XLLC_DEF xllc_def = {
 		.pa = RTM_T_USE_HOSTBUF,
 	};
-	xllc_def.len = VI_LEN;
+
 	ACQ* acq = createACQ(lun);
 
 	acq->VI = acq->AI = get_mapping(acq);
 	acq->DI = (unsigned*)(acq->AI+acq->nai);
-	acq->SPAD = (unsigned*)(acq->AI+acq->nai+acq->ndi);
+	acq->SPAD = (unsigned*)(acq->AI+acq->nai)+acq->ndi;
 
+	dbg(2, "acq_init(%d) SPAD %p [0x%x b]", lun,
+				acq->SPAD, (char*)acq->SPAD - (char*)acq->VI);
+
+	xllc_def.len = VI_LEN;
 	if (ioctl(acq->fd, AFHBA_START_AI_LLC, &xllc_def)){
 		perror("ioctl AFHBA_START_AI_LLC");
 		exit(1);
