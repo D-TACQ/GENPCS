@@ -83,7 +83,7 @@ void* get_mapping(ACQ* acq) {
 }
 
 
-ACQ* acq_init(int lun)
+ACQ* _acq_init(int lun)
 {
 	int ii;
 	struct XLLC_DEF xllc_def = {
@@ -182,14 +182,15 @@ ACQ* createACQ(int lun)
 	acq->DO = calloc(LUN0_DO, US); acq->ndo = LUN0_DO;
 
 	acq->lbuf = calloc(VI_LEN, 1);
+
 }
 
 
-ACQ* acq_init(int lun)
+ACQ* _acq_init(int lun)
 {
 	int ii;
 	ACQ* acq = createACQ(lun);
-	dbg(1, "acq_init STUB seed number init\n");
+	dbg(2, "acq_init STUB seed number init\n");
 	for (ii=0; ii<10; ii+=1){
 		acq->AI[ii]=125*ii;
 	}
@@ -206,3 +207,9 @@ void acq_terminate(ACQ* acq)
 }
 
 #endif
+
+ACQ* acq_init(int lun)
+{
+	dbg(2, "file %s flavour %s", __FILE__, FLAVOUR);
+	return _acq_init(lun);
+}

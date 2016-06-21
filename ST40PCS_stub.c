@@ -15,11 +15,13 @@
  * Refs:
 */
 
+#include "local.h"
 #include "ST40PCS_stub.h"
+#include "sysdef.h"
 
 void ST40PCS_initialize(void)
 {
-
+	dbg(2, "file %s flavour %s", __FILE__, FLAVOUR);
 }
 
 /** fake "feedback algorithm" */
