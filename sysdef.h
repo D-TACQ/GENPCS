@@ -51,4 +51,16 @@
 
 #define VO_LEN	(LUN0_AO*SS + (LUN0_DO)*US)
 
+/* MODEL definition : MUST MATCH ST40PCS.h */
+
+#define MODEL_AI 256	/* shorts */
+#define MODEL_DI 2	/* u32 */
+#define MODEL_ST 16     /* u32 */
+
+#define MODEL_AO 64	/* shorts */
+#define MODEL_DO 2      /* u32 */
+
+#define MODEL_VI_LEN	(MODEL_AI*SS + MODEL_DI*US + MODEL_ST*US)
+#define MODEL_VO_LEN	(MODEL_AO*SS + MODEL_DO*US)
+
 #endif /* TE_SYSDEF_H_ */
