@@ -24,14 +24,12 @@
 ST40PCS_U;
 ST40PCS_Y;
 #else
-
 #include "ST40PCS_stub.h"
-#include "acq.h"
-
 ExtU_ST40PCS_T ST40PCS_U;
 ExtY_ST40PCS_T ST40PCS_Y;
 #endif
 
+#include "acq.h"
 #include "sysdef.h"
 
 
