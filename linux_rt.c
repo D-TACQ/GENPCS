@@ -33,15 +33,19 @@ int verbose;
 
 void goRealTime()
 {
-        struct sched_param p = {};
-        p.sched_priority = sched_fifo_priority;
+	if (sched_fifo_priority == 0){
+		return;
+	}else{
+		struct sched_param p = {};
+		p.sched_priority = sched_fifo_priority;
 
-        int rc = sched_setscheduler(0, SCHED_FIFO, &p);
+		int rc = sched_setscheduler(0, SCHED_FIFO, &p);
 
-        if (rc){
-                perror("failed to set RT priority");
-        }
-        mlockall(MCL_CURRENT|MCL_FUTURE);
+		if (rc){
+			perror("failed to set RT priority");
+		}
+		mlockall(MCL_CURRENT|MCL_FUTURE);
+	}
 }
 
 void setAffinity(unsigned cpu_mask)
