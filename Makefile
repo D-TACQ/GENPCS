@@ -1,6 +1,6 @@
 # Makefile for ST40PCS
 
-all: acq mod pcs
+all: acq mod pcs tests
 
 acq:	
 	make cleano
@@ -18,6 +18,7 @@ nul:
 	make cleano
 	make $(DRYRUN) nul_sngl nul_dual
 
+# do NOT make these products singly, use top level commands above
 acq_sngl: test_acq_sngl.o ST40PCS_stub.o acq.o linux_rt.o 
 	$(CC) $(CFLAGS) -o $@ $^
 	
@@ -41,6 +42,8 @@ nul_sngl: test_acq_sngl.o ST40PCS_stub.o acq_stub.o linux_rt.o
 	
 nul_dual: test_acq_dual.o ST40PCS_stub.o acq_stub.o linux_rt.o
 	$(CC) $(CFLAGS) -o $@ $^
+
+tests: pig
 	
 pig: pig.o linux_rt.o
 	$(CC) $(CFLAGS) -o $@ $^
