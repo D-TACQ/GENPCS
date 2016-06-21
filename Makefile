@@ -3,21 +3,24 @@
 all: acq mod pcs tests
 
 acq:	
-	make cleano
-	CFLAGS=-DST40_ACQ make $(DRYRUN) acq_sngl acq_dual
+	$(MAKE) cleano
+	$(MAKE) $(DRYRUN) CFLAGS+=-DST40_ACQ acq_sngl acq_dual
 
 mod:	
 	make cleano
-	make CFLAGS=-DST40_MOD $(DRYRUN) mod_sngl mod_dual
+	$(MAKE) CFLAGS+=-DST40_MOD $(DRYRUN) mod_sngl mod_dual
 	
 pcs:	
-	make cleano
-	make CFLAGS="-DST40_ACQ -DST40_MOD " $(DRYRUN) pcs_sngl pcs_dual
+	$(MAKE) cleano
+	$(MAKE) CFLAGS+="-DST40_ACQ -DST40_MOD " $(DRYRUN) pcs_sngl pcs_dual
 
 nul:	
-	make cleano
-	make $(DRYRUN) nul_sngl nul_dual
+	$(MAKE) cleano
+	$(MAKE) $(DRYRUN) nul_sngl nul_dual
 
+ifdef $(DEBUG)
+CFLAGS+=-g
+endif
 # do NOT make these products singly, use top level commands above
 acq_sngl: test_acq_sngl.o ST40PCS_stub.o acq.o linux_rt.o 
 	$(CC) $(CFLAGS) -o $@ $^
