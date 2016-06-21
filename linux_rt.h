@@ -20,4 +20,10 @@
 extern int N_iter;			/* number of iterations */
 extern void linux_rt_init(int argc, char* argv[]);
 
+extern void goRealTime(void);
+extern unsigned get_gt_usec();
+
+#define mS	1000
+#define uS	(1000*mS)
+#define NS	(1000*uS)
 #endif /* TE_LINUX_RT_H_ */

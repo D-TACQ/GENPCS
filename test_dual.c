@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
 	acq0 = acq_init(LUN_MAG);
 	acq1 = acq_init(LUN_PSU);
 	ST40PCS_initialize();
+	goRealTime();
 
 	for (sample = 0; sample < N_iter; ++sample){
 		int ix = 0;

@@ -48,7 +48,6 @@
 
 #define NSPAD	8		/* scratchpad, longs */
 #define VI_LEN	(LUN0_AI*SS + (LUN0_DI+NSPAD)*US)
-
 #define VO_LEN	(LUN0_AO*SS + (LUN0_DO)*US)
 
 /* MODEL definition : MUST MATCH ST40PCS.h */

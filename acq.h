@@ -17,6 +17,8 @@
 #ifndef TE_ACQ_H_
 #define TE_ACQ_H_
 
+struct TS;
+
 typedef struct ACQ {
 	int lun;
 	int fd;
@@ -35,6 +37,7 @@ typedef struct ACQ {
 	unsigned pao;
 
 	short* lbuf;			// local bounce buffer
+	struct TS* acq_private;		// internal monitoring
 } ACQ;
 
 ACQ* acq_init(int lun);

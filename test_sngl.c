@@ -46,6 +46,7 @@ int main(int argc, char* argv[])
 
 	acq0 = acq_init(0);
 	ST40PCS_initialize();
+	goRealTime();
 
 	for (sample = 0; sample < N_iter; ++sample){
 		memcpy(acq0->AO, ST40PCS_Y.DTACQOUT, LUN0_AO*SS);

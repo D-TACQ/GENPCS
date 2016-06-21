@@ -16,7 +16,7 @@
 
 #include "local.h"
 #include "acq.h"
-
+#include "linux_rt.h"
 #include "sysdef.h"
 /** @todo pgm would far prefer C++, but not sure SL compat. */
 
@@ -39,6 +39,14 @@
 
 extern int errno;
 
+struct TS {
+	unsigned tl;			// tlatch[lun]
+	unsigned gts_before;		// x86 ts, before poll
+	unsigned gts_after;		// x86 ts, after poll
+	unsigned pollcat;
+};
+
+
 ACQ* createACQ(int lun)
 {
 	ACQ* acq = calloc(1, sizeof(ACQ));
@@ -50,6 +58,8 @@ ACQ* createACQ(int lun)
 	acq->ndo = LUN0_DO;
 
 	acq->lbuf = calloc(VI_LEN, 1);
+
+	acq->acq_private = calloc(N_iter, sizeof(struct TS));
 }
 
 void* get_mapping(ACQ* acq) {
@@ -66,6 +76,7 @@ void* get_mapping(ACQ* acq) {
 		perror( "mmap" );
 	        exit(errno);
 	}
+	memset(host_buffer, 0, HB_LEN);
 	return host_buffer;
 }
 
@@ -110,15 +121,22 @@ void acq_IO(ACQ* acq)
 	static int iter;
 	unsigned tl0 = acq->sample_count;
 	unsigned tl1;
+	int pollcat = 0;
+	struct TS *ts = &acq->acq_private[iter];
 
+	ts->gts_before = get_gt_usec();
 	memcpy(acq->lbuf, acq->VI, VI_LEN);
-	while((tl1 = *acq->SPAD) == tl0){
+	for (; (tl1 = *acq->SPAD) == tl0; ++pollcat){
 		sched_yield();
 		memcpy(acq->lbuf, acq->VI, VI_LEN);
 	}
-	acq->sample_count = tl1;
+	ts->gts_after = get_gt_usec();
+	ts->pollcat = pollcat;
+	ts->tl = acq->sample_count = tl1;
 
-	if (iter++ < 5 && verbose > 2){
+	++iter;
+
+	if (iter < 5 && verbose > 2){
 		FILE* fd = popen(
 			"hexdump -e '\"%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
 			"w");
@@ -127,8 +145,21 @@ void acq_IO(ACQ* acq)
 	}
 }
 
+static void stash_stats(ACQ* acq)
+{
+	char fname[80];
+	sprintf(fname, "%s.%d.stats", FLAVOUR, acq->lun);
+	FILE* fp = fopen(fname, "w");
+	if (fp == 0){
+		perror(fname);
+	}else{
+		fwrite(acq->acq_private, sizeof(struct TS), N_iter, fp);
+		fclose(fp);
+	}
+}
 void acq_terminate(ACQ* acq)
 {
+	stash_stats(acq);
 	munmap(acq->VI, HB_LEN);
 	close(acq->fd);
 }

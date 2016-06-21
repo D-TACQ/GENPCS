@@ -23,13 +23,15 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 int N_iter = 100000;
+int sched_fifo_priority;
 
 int verbose;
 
-void goRealTime(int sched_fifo_priority)
+void goRealTime()
 {
         struct sched_param p = {};
         p.sched_priority = sched_fifo_priority;
@@ -39,7 +41,9 @@ void goRealTime(int sched_fifo_priority)
         if (rc){
                 perror("failed to set RT priority");
         }
+        mlockall(MCL_CURRENT|MCL_FUTURE);
 }
+
 void setAffinity(unsigned cpu_mask)
 {
 	int cpu;
@@ -62,13 +66,25 @@ void setAffinity(unsigned cpu_mask)
         }
 }
 
+unsigned get_gt_usec()
+{
+	struct timeval tv;
+	unsigned bigtime;
+	if (gettimeofday(&tv, NULL)){
+		perror("gettimeofday()");
+		exit(1);
+	}
+	bigtime = tv.tv_sec*uS + tv.tv_usec;
+	return bigtime;
+}
+
 /** linux_rt_init()
  * "User Interface" from env vars, also set app settings, eg N_iter
  */
 static void ui(int argc, char* argv[])
 {
         if (getenv("RTPRIO")){
-        	goRealTime(atoi(getenv("RTPRIO")));
+        	sched_fifo_priority = atoi(getenv("RTPRIO"));
         }
         if (getenv("VERBOSE")){
                 verbose = atoi(getenv("VERBOSE"));
@@ -84,5 +100,4 @@ static void ui(int argc, char* argv[])
 void linux_rt_init(int argc, char* argv[])
 {
 	ui(argc, argv);
-
 }
