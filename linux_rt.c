@@ -73,13 +73,22 @@ void setAffinity(unsigned cpu_mask)
 unsigned get_gt_usec()
 {
 	struct timeval tv;
-	unsigned bigtime;
+	static struct timeval tv0;
+	static int tv0_valid;
+
 	if (gettimeofday(&tv, NULL)){
 		perror("gettimeofday()");
 		exit(1);
 	}
-	bigtime = tv.tv_sec*uS + tv.tv_usec;
-	return bigtime;
+	if (!tv0_valid){
+		tv0 = tv;
+		tv0_valid = 1;
+		return 0;
+	}else{
+		struct timeval dt;
+		timersub(&tv, &tv0, &dt);
+		return dt.tv_sec*uS + dt.tv_usec;
+	}
 }
 
 /** linux_rt_init()
