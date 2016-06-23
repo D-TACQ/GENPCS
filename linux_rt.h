@@ -18,6 +18,7 @@
 #define TE_LINUX_RT_H_
 
 extern int N_iter;			/* number of iterations */
+extern int G_lun;			/* device number 0 or 1 */
 extern void linux_rt_init(int argc, char* argv[]);
 
 extern void goRealTime(void);

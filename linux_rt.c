@@ -27,6 +27,7 @@
 #include <unistd.h>
 
 int N_iter = 100000;
+int G_lun;
 int sched_fifo_priority;
 
 int verbose;
@@ -104,6 +105,9 @@ static void ui(int argc, char* argv[])
         }
         if (getenv("AFFINITY")){
                 setAffinity(strtol(getenv("AFFINITY"), 0, 0));
+        }
+        if (getenv("G_LUN")){
+        	G_lun = atoi(getenv("G_LUN"));
         }
 
 	if (argc > 1){

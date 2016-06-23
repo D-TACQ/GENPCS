@@ -43,7 +43,7 @@ ST40PCS_Y;		// ditto
 
 	dbg(1, "file %s flavour %s", __FILE__, FLAVOUR);
 
-	acq0 = acq_init(0);
+	acq0 = acq_init(G_lun);
 	ST40PCS_initialize();
 	dbg(1, "Starting");
 	goRealTime();
