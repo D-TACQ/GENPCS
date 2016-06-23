@@ -19,6 +19,9 @@
 #include "ST40PCS_stub.h"
 #include "sysdef.h"
 
+ExtU_ST40PCS_T ST40PCS_U;
+ExtY_ST40PCS_T ST40PCS_Y;
+
 void ST40PCS_initialize(void)
 {
 	dbg(2, "file %s flavour %s", __FILE__, FLAVOUR);

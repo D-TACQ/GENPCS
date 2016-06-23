@@ -18,15 +18,10 @@
 #include "local.h"
 #include "linux_rt.h"
 
-#ifdef ST40_MOD
-#include "ST40PCS.h"
-/* @@todo pgm .. don't understand how next two lines compile ML secret sauce? */
-ST40PCS_U;
-ST40PCS_Y;
-#else
+
+
+#ifndef ST40_MOD
 #include "ST40PCS_stub.h"
-ExtU_ST40PCS_T ST40PCS_U;
-ExtY_ST40PCS_T ST40PCS_Y;
 #endif
 
 #include "acq.h"
@@ -35,7 +30,13 @@ ExtY_ST40PCS_T ST40PCS_Y;
 
 int main(int argc, char* argv[])
 {
+#ifdef ST40_MOD
+#include "ST40PCS.h" // don't understand why this has to be in the braces, but it seems to
+ST40PCS_U;
+ST40PCS_Y;
+#endif
 	int sample;
+	int ii;
 	ACQ* acq0;
 	ACQ* acq1;
 
@@ -68,6 +69,12 @@ int main(int argc, char* argv[])
 		/* ST40PCS_U.?? = acq1->sample_count); */
 
 		ST40PCS_step();
+
+		if(verbose > 3 && sample<20) {		/* do not print in RT mode */
+			for (ii=0; ii<34; ii+=1) {
+				printf("Sample %d  II %d IN %d OUT %d\n",sample,ii,ST40PCS_U.DTACQIN[ii],ST40PCS_Y.DTACQOUT[ii]);
+			}
+		}
 	}
 
 	ST40PCS_terminate();
