@@ -70,7 +70,7 @@ void setAffinity(unsigned cpu_mask)
         }
 }
 
-unsigned get_gt_usec()
+unsigned get_gt_usec(int reset)
 {
 	struct timeval tv;
 	static struct timeval tv0;
@@ -80,7 +80,7 @@ unsigned get_gt_usec()
 		perror("gettimeofday()");
 		exit(1);
 	}
-	if (!tv0_valid){
+	if (reset || !tv0_valid){
 		tv0 = tv;
 		tv0_valid = 1;
 		return 0;

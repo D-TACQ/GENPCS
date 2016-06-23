@@ -21,7 +21,7 @@ extern int N_iter;			/* number of iterations */
 extern void linux_rt_init(int argc, char* argv[]);
 
 extern void goRealTime(void);
-extern unsigned get_gt_usec();
+extern unsigned get_gt_usec(int reset);
 
 #define mS	1000
 #define uS	(1000*mS)

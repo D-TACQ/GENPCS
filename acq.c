@@ -130,13 +130,13 @@ void acq_IO(ACQ* acq)
 	int pollcat = 0;
 	struct TS *ts = &acq->acq_private[iter];
 
-	ts->gts_before = get_gt_usec();
+	ts->gts_before = get_gt_usec(0);
 	memcpy(acq->lbuf, acq->VI, VI_LEN);
 	for (; (tl1 = *acq->SPAD) == tl0; ++pollcat){
 		sched_yield();
 		memcpy(acq->lbuf, acq->VI, VI_LEN);
 	}
-	ts->gts_after = get_gt_usec();
+	ts->gts_after = get_gt_usec(iter == 0);
 	ts->pollcat = pollcat;
 	ts->tl = acq->sample_count = tl1;
 
