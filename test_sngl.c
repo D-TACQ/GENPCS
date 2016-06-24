@@ -45,6 +45,13 @@ ST40PCS_Y;		// ditto
 
 	acq0 = acq_init(G_lun);
 	ST40PCS_initialize();
+
+	if (verbose > 2){
+		FILE *fp = popen("hexdump", "w");
+		printf("initial OUT values\n");
+		fwrite(ST40PCS_Y.DTACQOUT, sizeof(ST40PCS_Y.DTACQOUT), 1, fp);
+		pclose(fp);
+	}
 	dbg(1, "Starting");
 	goRealTime();
 

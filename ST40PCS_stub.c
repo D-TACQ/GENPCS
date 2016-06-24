@@ -24,7 +24,15 @@ ExtY_ST40PCS_T ST40PCS_Y;
 
 void ST40PCS_initialize(void)
 {
+	int ic;
+
 	dbg(2, "file %s flavour %s", __FILE__, FLAVOUR);
+
+	for (ic = 0; ic < 32; ++ic){
+		ST40PCS_Y.DTACQOUT[ic] = 0x1000 + (ic<<4);
+	}
+	ST40PCS_Y.DTACQOUT[32] = 0x0bad;
+	ST40PCS_Y.DTACQOUT[33] = 0x1dea;
 }
 
 static int iter;
@@ -42,8 +50,8 @@ void ST40PCS_step(void)
 	/* DIO pattern not sure which short will map to high byte
 	 * guessing, the first one, but this will make it really obvious.
 	 */
-	ST40PCS_Y.DTACQOUT[33] = iter;
-	ST40PCS_Y.DTACQOUT[34] = -iter;
+	ST40PCS_Y.DTACQOUT[32] = iter;
+	ST40PCS_Y.DTACQOUT[33] = -iter;
 	++iter;
 }
 void ST40PCS_terminate(void)
