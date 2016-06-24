@@ -84,6 +84,8 @@ cleanup() {
 }
 
 init_2106
+echo HIT CR to start_stream
+read stuff
 start_stream
 echo now view data perhaps using ./mapsample
 echo CTRL-C to quit
