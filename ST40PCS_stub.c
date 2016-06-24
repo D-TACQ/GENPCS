@@ -27,11 +27,24 @@ void ST40PCS_initialize(void)
 	dbg(2, "file %s flavour %s", __FILE__, FLAVOUR);
 }
 
+static int iter;
+
 /** fake "feedback algorithm" */
 void ST40PCS_step(void)
 {
 	ST40PCS_Y.DTACQOUT[0] = ST40PCS_U.DTACQIN[0];
 	ST40PCS_Y.DTACQOUT[1] = -ST40PCS_U.DTACQIN[0];
+
+	ST40PCS_Y.DTACQOUT[2] = 10*iter*10;
+	ST40PCS_Y.DTACQOUT[3] = 10*iter*20;
+	ST40PCS_Y.DTACQOUT[4] = 10*iter*40;
+	ST40PCS_Y.DTACQOUT[5] = 10*iter*80;
+	/* DIO pattern not sure which short will map to high byte
+	 * guessing, the first one, but this will make it really obvious.
+	 */
+	ST40PCS_Y.DTACQOUT[33] = iter;
+	ST40PCS_Y.DTACQOUT[34] = -iter;
+	++iter;
 }
 void ST40PCS_terminate(void)
 {
