@@ -20,7 +20,7 @@
 #include "sysdef.h"
 /** @todo pgm would far prefer C++, but not sure SL compat. */
 
-
+static void print(struct ACQ* acq);
 
 #ifdef ST40_ACQ
 #include <errno.h>
@@ -191,6 +191,7 @@ ACQ* _acq_init(int lun)
 {
 	int ii;
 	ACQ* acq = createACQ(lun);
+
 	dbg(2, "acq_init STUB seed number init\n");
 	for (ii=0; ii<10; ii+=1){
 		acq->AI[ii]=125*ii;
@@ -211,6 +212,33 @@ void acq_terminate(ACQ* acq)
 
 ACQ* acq_init(int lun)
 {
+	ACQ* acq;
 	dbg(2, "file %s flavour %s", __FILE__, FLAVOUR);
-	return _acq_init(lun);
+	acq = _acq_init(lun);
+	if (verbose > 2) print(acq);
+	return acq;
+}
+
+static void print(struct ACQ* acq)
+{
+	printf("ACQ lun=%d fd=%d\n", acq->lun, acq->fd);
+#define PP(field, fmt) \
+	printf("%20s : " fmt "\n", #field, acq->field)
+
+	PP(AI, "%p");
+	PP(DI, "%p");
+	PP(SPAD, "%p");
+	PP(AO, "%p");
+	PP(DO, "%p");
+	PP(VI, "%p");
+	PP(VO, "%p");
+
+	PP(pai, "0x%08x");
+	PP(pao, "0x%08x");
+
+	PP(nai, "%d");
+	PP(ndi, "%d");
+	PP(nao, "%d");
+	PP(ndo, "%d");
+	PP(sample_count, "%d");
 }
