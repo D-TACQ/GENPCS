@@ -143,8 +143,6 @@ void acq_IO(ACQ* acq)
 
 	++iter;
 
-	printf("iter %d\n", iter);
-
 	if (iter < 5 && verbose > 2){
 		printf("verbose > 2 Iter: %d\n");
 		FILE* fd = popen(
