@@ -233,6 +233,9 @@ static void print(struct ACQ* acq)
 	PP(VI, "%p");
 	PP(VO, "%p");
 
+	printf("%20s : %d\n", "VI_LEN", VI_LEN);
+	printf("%20s : %d\n", "VO_LEN", VO_LEN);
+
 	PP(pai, "0x%08x");
 	PP(pao, "0x%08x");
 
