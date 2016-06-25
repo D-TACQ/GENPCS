@@ -73,7 +73,8 @@ void* get_mapping(ACQ* acq) {
 		perror(fname);
 		exit(errno);
 	}
-	host_buffer = mmap(0, HB_LEN, PROT_READ|PROT_WRITE, MAP_SHARED, acq->fd, 0);
+	/* mmap AI _and_ AO */
+	host_buffer = mmap(0, HB_LEN*2, PROT_READ|PROT_WRITE, MAP_SHARED, acq->fd, 0);
 	if (host_buffer == (caddr_t)-1 ){
 		perror( "mmap" );
 	        exit(errno);
