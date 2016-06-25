@@ -144,11 +144,19 @@ void acq_IO(ACQ* acq)
 	++iter;
 
 	if (iter < 5 && verbose > 2){
+		printf("verbose > 2 Iter: %d\n");
 		FILE* fd = popen(
-			"hexdump -e '\"%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
+			"hexdump -e '\"VI:%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
 			"w");
 		fwrite(acq->VI, 1, VI_LEN+2, fd);
 		pclose(fd);
+		if (verbose > 3){
+			fd = popen(
+			"hexdump -e '\"VO:%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
+			"w");
+			fwrite(acq->VO, 1, VO_LEN, fd);
+			pclose(fd);
+		}
 	}
 }
 
