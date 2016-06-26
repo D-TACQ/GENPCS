@@ -209,14 +209,14 @@ ACQ* createACQ(int lun)
 	ACQ* acq = calloc(1, sizeof(ACQ));
 
 	acq->lun = lun;
-	acq->nai = GETENVINT(LUN0_AI);
-	acq->ndi = GETENVINT(LUN0_DI);
-	acq->nao = GETENVINT(LUN0_AO);
-	acq->ndo = GETENVINT(LUN0_DO);
+	acq->nai = lun==0? GETENVINT(LUN0_AI): GETENVINT(LUN1_AI);
+	acq->ndi = lun==0? GETENVINT(LUN0_DI): GETENVINT(LUN1_DI);
+	acq->nao = lun==0? GETENVINT(LUN0_AO): GETENVINT(LUN1_AO);
+	acq->ndo = lun==0? GETENVINT(LUN0_DO): GETENVINT(LUN1_DO);
 
-	acq->vi_len = (acq->nai/32)*sizeof(short) + (acq->ndi)*sizeof(unsigned);
+	acq->vi_len = (acq->nai)*sizeof(short) + (acq->ndi)*sizeof(unsigned);
 	acq->vi_len = roundup(acq->vi_len, DMA_SEG_SIZE);
-	acq->vo_len = (acq->nao/32)*sizeof(short) + (acq->ndo)*sizeof(unsigned);
+	acq->vo_len = (acq->nao)*sizeof(short) + (acq->ndo)*sizeof(unsigned);
 	acq->vo_len = roundup(acq->vo_len, DMA_SEG_SIZE);
 
 	acq->lbuf = calloc(acq->vi_len, 1);
