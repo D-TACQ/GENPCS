@@ -49,6 +49,9 @@ struct TS {
 /* hack assumes key name and symbol name for default are the SAME .. */
 #define GETENVINT(key) getenv(#key)? atoi(getenv(#key)): key
 
+#define VI_LEN(acq)	_VI_LEN(acq->nai, acq->ndi)
+#define VO_LEN(acq)	_VO_LEN(acq->nao, acq->ndo)
+
 ACQ* createACQ(int lun)
 {
 	ACQ* acq = calloc(1, sizeof(ACQ));
@@ -59,7 +62,7 @@ ACQ* createACQ(int lun)
 	acq->nao = GETENVINT(LUN0_AO);
 	acq->ndo = GETENVINT(LUN0_DO);
 
-	acq->lbuf = calloc(VI_LEN, 1);
+	acq->lbuf = calloc(VI_LEN(acq), 1);
 
 	acq->acq_private = calloc(N_iter, sizeof(struct TS));
 }
@@ -100,7 +103,7 @@ ACQ* _acq_init(int lun)
 	dbg(2, "acq_init(%d) SPAD %p [0x%x b]", lun,
 				acq->SPAD, (char*)acq->SPAD - (char*)acq->VI);
 
-	xllc_def.len = VI_LEN;
+	xllc_def.len = VI_LEN(acq);
 	if (ioctl(acq->fd, AFHBA_START_AI_LLC, &xllc_def)){
 		perror("ioctl AFHBA_START_AI_LLC");
 		exit(1);
@@ -113,7 +116,7 @@ ACQ* _acq_init(int lun)
 	acq->DO = (unsigned*)(acq->VO+acq->nao);
 
 	xllc_def.pa += HB_LEN;
-	xllc_def.len = VO_LEN;
+	xllc_def.len = VO_LEN(acq);
 
 	if (ioctl(acq->fd, AFHBA_START_AO_LLC, &xllc_def)){
 		perror("ioctl AFHBA_START_AO_LLC");
@@ -132,10 +135,10 @@ void acq_IO(ACQ* acq)
 	struct TS *ts = &acq->acq_private[iter];
 
 	ts->gts_before = get_gt_usec(0);
-	memcpy(acq->lbuf, acq->VI, VI_LEN);
+	memcpy(acq->lbuf, acq->VI, VI_LEN(acq));
 	for (; (tl1 = *acq->SPAD) == tl0; ++pollcat){
 		sched_yield();
-		memcpy(acq->lbuf, acq->VI, VI_LEN);
+		memcpy(acq->lbuf, acq->VI, VI_LEN(acq));
 	}
 	ts->gts_after = get_gt_usec(iter == 0);
 	ts->pollcat = pollcat;
@@ -148,13 +151,13 @@ void acq_IO(ACQ* acq)
 		FILE* fd = popen(
 			"hexdump -e '\"VI:%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
 			"w");
-		fwrite(acq->VI, 1, VI_LEN+2, fd);
+		fwrite(acq->VI, 1, VI_LEN(acq)+2, fd);
 		pclose(fd);
 		if (verbose > 3){
 			fd = popen(
 			"hexdump -e '\"VO:%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
 			"w");
-			fwrite(acq->VO, 1, VO_LEN, fd);
+			fwrite(acq->VO, 1, VO_LEN(acq), fd);
 			pclose(fd);
 		}
 	}
@@ -241,8 +244,8 @@ static void print(struct ACQ* acq)
 	PP(VI, "%p");
 	PP(VO, "%p");
 
-	printf("%20s : %d\n", "VI_LEN", VI_LEN);
-	printf("%20s : %d\n", "VO_LEN", VO_LEN);
+	printf("%20s : %d\n", "VI_LEN", VI_LEN(acq));
+	printf("%20s : %d\n", "VO_LEN", VO_LEN(acq));
 
 	PP(pai, "0x%08x");
 	PP(pao, "0x%08x");
