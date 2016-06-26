@@ -22,6 +22,10 @@
 
 static void print(struct ACQ* acq);
 
+#define DMA_SEG_SIZE	64
+
+static ACQ* createACQ(int lun);
+
 #ifdef ST40_ACQ
 #include <errno.h>
 #include <fcntl.h>
@@ -46,26 +50,6 @@ struct TS {
 	unsigned pollcat;
 };
 
-/* hack assumes key name and symbol name for default are the SAME .. */
-#define GETENVINT(key) getenv(#key)? atoi(getenv(#key)): key
-
-#define VI_LEN(acq)	_VI_LEN(acq->nai, acq->ndi)
-#define VO_LEN(acq)	_VO_LEN(acq->nao, acq->ndo)
-
-ACQ* createACQ(int lun)
-{
-	ACQ* acq = calloc(1, sizeof(ACQ));
-
-	acq->lun = lun;
-	acq->nai = GETENVINT(LUN0_AI);
-	acq->ndi = GETENVINT(LUN0_DI);
-	acq->nao = GETENVINT(LUN0_AO);
-	acq->ndo = GETENVINT(LUN0_DO);
-
-	acq->lbuf = calloc(VI_LEN(acq), 1);
-
-	acq->acq_private = calloc(N_iter, sizeof(struct TS));
-}
 
 void* get_mapping(ACQ* acq) {
 	void* host_buffer;
@@ -103,7 +87,7 @@ ACQ* _acq_init(int lun)
 	dbg(2, "acq_init(%d) SPAD %p [0x%x b]", lun,
 				acq->SPAD, (char*)acq->SPAD - (char*)acq->VI);
 
-	xllc_def.len = VI_LEN(acq);
+	xllc_def.len = acq->vi_len;
 	if (ioctl(acq->fd, AFHBA_START_AI_LLC, &xllc_def)){
 		perror("ioctl AFHBA_START_AI_LLC");
 		exit(1);
@@ -116,7 +100,7 @@ ACQ* _acq_init(int lun)
 	acq->DO = (unsigned*)(acq->VO+acq->nao);
 
 	xllc_def.pa += HB_LEN;
-	xllc_def.len = VO_LEN(acq);
+	xllc_def.len = acq->vo_len;
 
 	if (ioctl(acq->fd, AFHBA_START_AO_LLC, &xllc_def)){
 		perror("ioctl AFHBA_START_AO_LLC");
@@ -135,10 +119,10 @@ void acq_IO(ACQ* acq)
 	struct TS *ts = &acq->acq_private[iter];
 
 	ts->gts_before = get_gt_usec(0);
-	memcpy(acq->lbuf, acq->VI, VI_LEN(acq));
+	memcpy(acq->lbuf, acq->VI, acq->vi_len);
 	for (; (tl1 = *acq->SPAD) == tl0; ++pollcat){
 		sched_yield();
-		memcpy(acq->lbuf, acq->VI, VI_LEN(acq));
+		memcpy(acq->lbuf, acq->VI, acq->vi_len);
 	}
 	ts->gts_after = get_gt_usec(iter == 0);
 	ts->pollcat = pollcat;
@@ -151,13 +135,13 @@ void acq_IO(ACQ* acq)
 		FILE* fd = popen(
 			"hexdump -e '\"VI:%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
 			"w");
-		fwrite(acq->VI, 1, VI_LEN(acq)+2, fd);
+		fwrite(acq->VI, 1, acq->vi_len+2, fd);
 		pclose(fd);
 		if (verbose > 3){
 			fd = popen(
 			"hexdump -e '\"VO:%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
 			"w");
-			fwrite(acq->VO, 1, VO_LEN(acq), fd);
+			fwrite(acq->VO, 1, acq->vo_len, fd);
 			pclose(fd);
 		}
 	}
@@ -183,20 +167,6 @@ void acq_terminate(ACQ* acq)
 }
 
 #else
-ACQ* createACQ(int lun)
-{
-	ACQ* acq = calloc(1, sizeof(ACQ));
-
-	acq->lun = lun;
-	acq->AI = calloc(LUN0_AI, SS); acq->nai = LUN0_AI;
-	acq->DI = calloc(LUN0_DI, US); acq->ndi = LUN0_DI;
-	acq->AO = calloc(LUN0_AO, SS); acq->nao = LUN0_AO;
-	acq->DO = calloc(LUN0_DO, US); acq->ndo = LUN0_DO;
-
-	acq->lbuf = calloc(VI_LEN, 1);
-
-}
-
 
 ACQ* _acq_init(int lun)
 {
@@ -221,6 +191,39 @@ void acq_terminate(ACQ* acq)
 
 #endif
 
+/* hack assumes key name and symbol name for default are the SAME .. */
+#define GETENVINT(key) getenv(#key)? atoi(getenv(#key)): key
+
+
+
+int roundup(int len, int segsize)
+{
+	if (len%segsize){
+		len += segsize - len%segsize;
+	}
+	return len;
+}
+
+ACQ* createACQ(int lun)
+{
+	ACQ* acq = calloc(1, sizeof(ACQ));
+
+	acq->lun = lun;
+	acq->nai = GETENVINT(LUN0_AI);
+	acq->ndi = GETENVINT(LUN0_DI);
+	acq->nao = GETENVINT(LUN0_AO);
+	acq->ndo = GETENVINT(LUN0_DO);
+
+	acq->vi_len = (acq->nai/32)*sizeof(short) + (acq->ndi)*sizeof(unsigned);
+	acq->vi_len = roundup(acq->vi_len, DMA_SEG_SIZE);
+	acq->vo_len = (acq->nao/32)*sizeof(short) + (acq->ndo)*sizeof(unsigned);
+	acq->vo_len = roundup(acq->vo_len, DMA_SEG_SIZE);
+
+	acq->lbuf = calloc(acq->vi_len, 1);
+	acq->acq_private = calloc(N_iter, sizeof(struct TS));
+}
+
+
 ACQ* acq_init(int lun)
 {
 	ACQ* acq;
@@ -244,8 +247,8 @@ static void print(struct ACQ* acq)
 	PP(VI, "%p");
 	PP(VO, "%p");
 
-	printf("%20s : %d\n", "VI_LEN", VI_LEN(acq));
-	printf("%20s : %d\n", "VO_LEN", VO_LEN(acq));
+	PP(vi_len, "%d");
+	PP(vo_len, "%d");
 
 	PP(pai, "0x%08x");
 	PP(pao, "0x%08x");

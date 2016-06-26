@@ -31,8 +31,8 @@ typedef struct ACQ {
 	short *AO; 	int nao;
 	unsigned* DO; 	int ndo;
 
-	short *VI;
-	short *VO;
+	short *VI;	int vi_len;		/* MUST be multiple of 64 */
+	short *VO;	int vo_len;
 	unsigned pai;
 	unsigned pao;
 
