@@ -219,7 +219,7 @@ ACQ* createACQ(int lun)
 
 	xi_len = (acq->nai)*sizeof(short) + (acq->ndi)*sizeof(unsigned);
 	acq->vi_len = roundup(xi_len + MINSPAD, DMA_SEG_SIZE);
-	acq->nspad = acq->vi_len - xi_len;
+	acq->nspad = (acq->vi_len - xi_len)/sizeof(unsigned);
 
 	dbg(1, "spad 1,%d,1", acq->nspad);
 
