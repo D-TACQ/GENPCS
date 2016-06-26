@@ -54,6 +54,7 @@ init_2106() {
 	remote_cmd $AO lotide 256
 	remote_cmd $AO clk=1,2,1
 	remote_cmd $AO clkdiv=1 
+	remote_cmd $AO trg=1,2,1
 #	remote_cmd $AO2 lotide 256
 #	remote_cmd $AO2 clk=1,2,1
 #	remote_cmd $AO2 clk=1,2,1
