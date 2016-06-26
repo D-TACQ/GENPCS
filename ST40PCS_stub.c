@@ -44,11 +44,11 @@ void ST40PCS_step(void)
 	ST40PCS_Y.DTACQOUT[0] = ST40PCS_U.DTACQIN[0];
 	ST40PCS_Y.DTACQOUT[1] = -ST40PCS_U.DTACQIN[0];
 
-	ST40PCS_Y.DTACQOUT[2] = 10*iter;
-	ST40PCS_Y.DTACQOUT[3] = -10*iter;
+	ST40PCS_Y.DTACQOUT[2] = 20*iter;
+	ST40PCS_Y.DTACQOUT[3] = -20*iter;
 
 	for (ic = 4; ic < 32; ++ic){
-		ST40PCS_Y.DTACQOUT[ic] = ic*100;
+		ST40PCS_Y.DTACQOUT[ic] = 10*iter + ic*500;
 	}
 
 	/* DIO pattern not sure which short will map to high byte
