@@ -47,12 +47,6 @@
 #define LUN1_DO 1
 
 
-#define _VI_LEN(nai, ndi)	(((nai)+(ndi))*64)
-/* scratchpad, longs, must pad to *64 bytes */
-#define _NSPAD(nai, ndi)	((_VI_LEN(nai, ndi) - (LUN0_AI*SS + LUN0_DI*US)/US)
-/* VO .. round up to next *64 bytes */
-#define _VO_LEN(nao, ndo)	(((nao)+(ndo))*64)		// (LUN0_AO*SS + (LUN0_DO)*US)
-
 /* MODEL definition : MUST MATCH ST40PCS.h */
 
 #define MODEL_AI 256	/* shorts */

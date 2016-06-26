@@ -23,13 +23,13 @@ typedef struct ACQ {
 	int lun;
 	int fd;
 
-	short* AI; 	int nai;
-	unsigned* DI; 	int ndi;		// words
-	unsigned* SPAD;				// scratchpad
+	short* AI; 	int nai;		// # chan
+	unsigned* DI; 	int ndi;		// # uint32
+	unsigned* SPAD;	int nspad;		// scratchpad, # uint32
 	unsigned sample_count;
 
-	short *AO; 	int nao;
-	unsigned* DO; 	int ndo;
+	short *AO; 	int nao;		// # chan
+	unsigned* DO; 	int ndo;		// # uint32
 
 	short *VI;	int vi_len;		/* MUST be multiple of 64 */
 	short *VO;	int vo_len;

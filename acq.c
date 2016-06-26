@@ -23,6 +23,7 @@
 static void print(struct ACQ* acq);
 
 #define DMA_SEG_SIZE	64
+#define MINSPAD		4
 
 static ACQ* createACQ(int lun);
 
@@ -207,6 +208,8 @@ int roundup(int len, int segsize)
 ACQ* createACQ(int lun)
 {
 	ACQ* acq = calloc(1, sizeof(ACQ));
+	int xi_len;
+	int xo_len;
 
 	acq->lun = lun;
 	acq->nai = lun==0? GETENVINT(LUN0_AI): GETENVINT(LUN1_AI);
@@ -214,10 +217,14 @@ ACQ* createACQ(int lun)
 	acq->nao = lun==0? GETENVINT(LUN0_AO): GETENVINT(LUN1_AO);
 	acq->ndo = lun==0? GETENVINT(LUN0_DO): GETENVINT(LUN1_DO);
 
-	acq->vi_len = (acq->nai)*sizeof(short) + (acq->ndi)*sizeof(unsigned);
-	acq->vi_len = roundup(acq->vi_len, DMA_SEG_SIZE);
-	acq->vo_len = (acq->nao)*sizeof(short) + (acq->ndo)*sizeof(unsigned);
-	acq->vo_len = roundup(acq->vo_len, DMA_SEG_SIZE);
+	xi_len = (acq->nai)*sizeof(short) + (acq->ndi)*sizeof(unsigned);
+	acq->vi_len = roundup(xi_len + MINSPAD, DMA_SEG_SIZE);
+	acq->nspad = acq->vi_len - xi_len;
+
+	dbg(1, "spad 1,%d,1", acq->nspad);
+
+	xo_len = (acq->nao)*sizeof(short) + (acq->ndo)*sizeof(unsigned);
+	acq->vo_len = roundup(xo_len, DMA_SEG_SIZE);
 
 	acq->lbuf = calloc(acq->vi_len, 1);
 	acq->acq_private = calloc(N_iter, sizeof(struct TS));
@@ -255,6 +262,7 @@ static void print(struct ACQ* acq)
 
 	PP(nai, "%d");
 	PP(ndi, "%d");
+	PP(nspad, "%d");
 	PP(nao, "%d");
 	PP(ndo, "%d");
 	PP(sample_count, "%d");
