@@ -83,6 +83,7 @@ start_stream() {
 
 cleanup() {
 #	kill ${STREAMPID}
+	remote_cmd $AO playloop_length 0
 	remote_cmd $SC streamtonowhered stop
 }
 
