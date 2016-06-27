@@ -126,7 +126,8 @@ void acq_IO(ACQ* acq)
 		sched_yield();
 		memcpy(acq->lbuf, acq->VI, acq->vi_len);
 		if (acq->sample && pollcat > 1000 && get_gt_usec(0) > ts->gts_before + 100000){
-			fprintf(stderr, "lun:%d TIMEOUT at sample %d", acq->lun, acq->sample);
+			fprintf(stderr, "ERROR TIMEOUT lun:%d at sample %d\n",
+					acq->lun, acq->sample);
 			raise(SIGINT);
 		}
 	}
