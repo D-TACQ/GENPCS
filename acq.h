@@ -22,6 +22,7 @@ struct TS;
 typedef struct ACQ {
 	int lun;
 	int fd;
+	int sample;
 
 	short* AI; 	int nai;		// # chan
 	unsigned* DI; 	int ndi;		// # uint32

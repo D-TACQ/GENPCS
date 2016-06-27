@@ -20,6 +20,8 @@
 #include "sysdef.h"
 /** @todo pgm would far prefer C++, but not sure SL compat. */
 
+#include <signal.h>
+
 static void print(struct ACQ* acq);
 
 #define DMA_SEG_SIZE	64
@@ -113,25 +115,28 @@ ACQ* _acq_init(int lun)
 }
 void acq_IO(ACQ* acq)
 {
-	static int iter;
 	unsigned tl0 = acq->sample_count;
 	unsigned tl1;
 	int pollcat = 0;
-	struct TS *ts = &acq->acq_private[iter];
+	struct TS *ts = &acq->acq_private[acq->sample];
 
 	ts->gts_before = get_gt_usec(0);
 	memcpy(acq->lbuf, acq->VI, acq->vi_len);
 	for (; (tl1 = *acq->SPAD) == tl0; ++pollcat){
 		sched_yield();
 		memcpy(acq->lbuf, acq->VI, acq->vi_len);
+		if (acq->sample && pollcat > 1000 && get_gt_usec(0) > ts->gts_before + 100000){
+			fprintf(stderr, "lun:%d TIMEOUT at sample %d", acq->lun, acq->sample);
+			raise(SIGINT);
+		}
 	}
-	ts->gts_after = get_gt_usec(iter == 0);
+	ts->gts_after = get_gt_usec(acq->sample == 0);
 	ts->pollcat = pollcat;
 	ts->tl = acq->sample_count = tl1;
 
-	++iter;
+	acq->sample++;
 
-	if (iter < 5 && verbose > 2){
+	if (acq->sample < 5 && verbose > 2){
 		printf("verbose > 2 Iter: %d\n");
 		FILE* fd = popen(
 			"hexdump -e '\"VI:%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
@@ -146,6 +151,7 @@ void acq_IO(ACQ* acq)
 			pclose(fd);
 		}
 	}
+
 }
 
 static void stash_stats(ACQ* acq)
@@ -156,8 +162,10 @@ static void stash_stats(ACQ* acq)
 	if (fp == 0){
 		perror(fname);
 	}else{
-		fwrite(acq->acq_private, sizeof(struct TS), N_iter, fp);
+		int nw = fwrite(acq->acq_private, sizeof(struct TS), acq->sample, fp);
 		fclose(fp);
+
+		dbg(1, "stash_stats %s samples %d", fname, acq->sample);
 	}
 }
 void acq_terminate(ACQ* acq)
@@ -230,12 +238,25 @@ ACQ* createACQ(int lun)
 	acq->acq_private = calloc(N_iter, sizeof(struct TS));
 }
 
+static ACQ* acq_stack[2];
+
+void cleanup(int sig)
+{
+
+	if (acq_stack[0]) acq_terminate(acq_stack[0]);
+	if (acq_stack[1]) acq_terminate(acq_stack[1]);
+	exit(1);
+}
 
 ACQ* acq_init(int lun)
 {
 	ACQ* acq;
+	signal(SIGINT, cleanup);
 	dbg(2, "file %s flavour %s", __FILE__, FLAVOUR);
 	acq = _acq_init(lun);
+	if (lun < 2){
+		acq_stack[lun] = acq;
+	}
 	if (verbose > 2) print(acq);
 	return acq;
 }
