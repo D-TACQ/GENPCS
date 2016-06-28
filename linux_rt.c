@@ -28,6 +28,7 @@
 
 int N_iter = 100000;
 int G_lun;
+int G_yield = 1;
 int sched_fifo_priority;
 
 int verbose;
@@ -49,6 +50,10 @@ void goRealTime()
 	}
 }
 
+void yield()
+{
+	if (G_yield) sched_yield();
+}
 void setAffinity(unsigned cpu_mask)
 {
 	int cpu;
@@ -108,6 +113,9 @@ static void ui(int argc, char* argv[])
         }
         if (getenv("G_LUN")){
         	G_lun = atoi(getenv("G_LUN"));
+        }
+        if (getenv("G_YIELD")){
+        	G_yield= atoi(getenv("G_YIELD"));
         }
 
 	if (argc > 1){

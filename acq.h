@@ -17,7 +17,13 @@
 #ifndef TE_ACQ_H_
 #define TE_ACQ_H_
 
-struct TS;
+/** TS : stats, may be copied to MODEL */
+struct TS {
+	unsigned tl;			// tlatch[lun]
+	unsigned gts_before;		// x86 ts, before poll
+	unsigned gts_after;		// x86 ts, after poll
+	unsigned pollcat;
+};
 
 typedef struct ACQ {
 	int lun;
@@ -38,7 +44,7 @@ typedef struct ACQ {
 	unsigned pao;
 
 	short* lbuf;			// local bounce buffer
-	struct TS* acq_private;		// internal monitoring
+	struct TS* ts;		// internal monitoring
 } ACQ;
 
 ACQ* acq_init(int lun);

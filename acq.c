@@ -32,7 +32,7 @@ static ACQ* createACQ(int lun);
 #ifdef ST40_ACQ
 #include <errno.h>
 #include <fcntl.h>
-#include <sched.h>
+
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -46,12 +46,6 @@ static ACQ* createACQ(int lun);
 
 extern int errno;
 
-struct TS {
-	unsigned tl;			// tlatch[lun]
-	unsigned gts_before;		// x86 ts, before poll
-	unsigned gts_after;		// x86 ts, after poll
-	unsigned pollcat;
-};
 
 
 void* get_mapping(ACQ* acq) {
@@ -118,12 +112,12 @@ void acq_IO(ACQ* acq)
 	unsigned tl0 = acq->sample_count;
 	unsigned tl1;
 	int pollcat = 0;
-	struct TS *ts = &acq->acq_private[acq->sample];
+	struct TS *ts = &acq->ts[acq->sample];
 
 	ts->gts_before = get_gt_usec(0);
 	memcpy(acq->lbuf, acq->VI, acq->vi_len);
 	for (; (tl1 = *acq->SPAD) == tl0; ++pollcat){
-		sched_yield();
+		yield();
 		memcpy(acq->lbuf, acq->VI, acq->vi_len);
 		if (acq->sample && pollcat > 1000 && get_gt_usec(0) > ts->gts_before + 100000){
 			fprintf(stderr, "ERROR TIMEOUT lun:%d at sample %d\n",
@@ -163,7 +157,7 @@ static void stash_stats(ACQ* acq)
 	if (fp == 0){
 		perror(fname);
 	}else{
-		int nw = fwrite(acq->acq_private, sizeof(struct TS), acq->sample, fp);
+		int nw = fwrite(acq->ts, sizeof(struct TS), acq->sample, fp);
 		fclose(fp);
 
 		dbg(1, "stash_stats %s samples %d", fname, acq->sample);
@@ -236,7 +230,7 @@ ACQ* createACQ(int lun)
 	acq->vo_len = roundup(xo_len, DMA_SEG_SIZE);
 
 	acq->lbuf = calloc(acq->vi_len, 1);
-	acq->acq_private = calloc(N_iter, sizeof(struct TS));
+	acq->ts = calloc(N_iter, sizeof(struct TS));
 }
 
 static ACQ* acq_stack[2];
