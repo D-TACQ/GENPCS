@@ -24,6 +24,8 @@
 
 static void print(struct ACQ* acq);
 
+char sigint_message[128];
+
 #define DMA_SEG_SIZE	64
 #define MINSPAD		4
 
@@ -118,13 +120,14 @@ void acq_IO(ACQ* acq)
 	memcpy(acq->lbuf, acq->VI, acq->vi_len);
 	for (; (tl1 = *acq->SPAD) == tl0; ++pollcat){
 		yield();
-		memcpy(acq->lbuf, acq->VI, acq->vi_len);
-		if (acq->sample && pollcat > 1000 && get_gt_usec(0) > ts->gts_before + 100000){
-			fprintf(stderr, "ERROR TIMEOUT lun:%d at sample %d\n",
-					acq->lun, acq->sample);
+		if (acq->sample && pollcat > 100000 && get_gt_usec(0) > ts->gts_before + 100000){
+			snprintf(sigint_message, 128,
+				 "ERROR TIMEOUT lun:%d at sample %d\n",
+				 acq->lun, acq->sample);
 			raise(SIGINT);
 		}
 	}
+	memcpy(acq->lbuf, acq->VI, acq->vi_len);
 	ts->gts_after = get_gt_usec(acq->sample == 0);
 	ts->pollcat = pollcat;
 	ts->tl = acq->sample_count = tl1;
@@ -237,7 +240,10 @@ static ACQ* acq_stack[2];
 
 void cleanup(int sig)
 {
-
+	if (strlen(sigint_message)){
+		fprintf(stderr, sigint_message);
+		fflush(stderr);
+	}
 	if (acq_stack[0]) acq_terminate(acq_stack[0]);
 	if (acq_stack[1]) acq_terminate(acq_stack[1]);
 	exit(1);
