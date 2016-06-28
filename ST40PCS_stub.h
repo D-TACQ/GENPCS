@@ -23,12 +23,12 @@ typedef short int16_T;
 
 /* External inputs (root inport signals with auto storage) */
 typedef struct {
-  int16_T DTACQIN[256];                /* '<Root>/DTACQIN' */
+  int16_T DTACQIN[272];                /* '<Root>/DTACQIN' */
 } ExtU_ST40PCS_T;
 
 /* External outputs (root outports fed by signals with auto storage) */
 typedef struct {
-  int16_T DTACQOUT[128];                /* '<Root>/DTACQOUT' */
+  int16_T DTACQOUT[68];                /* '<Root>/DTACQOUT' */
 } ExtY_ST40PCS_T;
 
 

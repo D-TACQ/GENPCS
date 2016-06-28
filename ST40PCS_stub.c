@@ -51,11 +51,13 @@ void ST40PCS_step(void)
 		ST40PCS_Y.DTACQOUT[ic] = 10*iter + ic*500;
 	}
 
-	/* DIO pattern not sure which short will map to high byte
-	 * guessing, the first one, but this will make it really obvious.
+	/* 16 channels DO looped back to 16 channels DI
+	 * DO.0 will go high when AI0 > 0
 	 */
-	ST40PCS_Y.DTACQOUT[32] = iter*2;
-	ST40PCS_Y.DTACQOUT[33] = iter*2+1;
+	ST40PCS_Y.DTACQOUT[32] = iter*4 | 		//counter
+		((iter&1)? 0x2:0) | 			//toggles at SR
+		((ST40PCS_U.DTACQIN[0]>0? 1: 0));	//mod(AI0)
+
 	++iter;
 }
 void ST40PCS_terminate(void)

@@ -3,9 +3,9 @@
  *
  * Code generation for model "ST40PCS".
  *
- * Model version              : 1.4
+ * Model version              : 1.11
  * Simulink Coder version : 8.10 (R2016a) 10-Feb-2016
- * C source code generated on : Thu Jun  9 10:14:36 2016
+ * C source code generated on : Tue Jun 28 14:55:13 2016
  *
  * Target selection: grt.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -36,15 +36,18 @@ void ST40PCS_step(void)
   int32_T i;
   int32_T i_0;
   real_T tmp_0;
+  int16_T tmp_1[4];
+  int16_T tmp_2;
+
+  /* DataTypeConversion: '<Root>/Short' incorporates:
+   *  DataTypeConversion: '<Root>/ADC'
+   *  Gain: '<Root>/Gain'
+   *  Inport: '<Root>/DTACQIN'
+   *  Outport: '<Root>/DTACQOUT'
+   */
   for (i = 0; i < 32; i++) {
-    /* DataTypeConversion: '<Root>/Short' incorporates:
-     *  DataTypeConversion: '<Root>/128  ADC'
-     *  Gain: '<Root>/Gain'
-     *  Inport: '<Root>/DTACQIN'
-     *  Outport: '<Root>/DTACQOUT'
-     */
     tmp_0 = 0.0;
-    for (i_0 = 0; i_0 < 128; i_0++) {
+    for (i_0 = 0; i_0 < 256; i_0++) {
       tmp_0 += ST40PCS_P.SATGain1[(i_0 << 5) + i] * (real_T)
         ST40PCS_U.DTACQIN[i_0];
     }
@@ -58,22 +61,37 @@ void ST40PCS_step(void)
 
     tmp[i] = (int16_T)(tmp_0 < 0.0 ? (int32_T)(int16_T)-(int16_T)(uint16_T)
                        -tmp_0 : (int32_T)(int16_T)(uint16_T)tmp_0);
-
-    /* End of DataTypeConversion: '<Root>/Short' */
-
-    /* Outport: '<Root>/DTACQOUT' */
-    ST40PCS_Y.DTACQOUT[i] = tmp[i];
   }
 
-  /* Outport: '<Root>/DTACQOUT' incorporates:
-   *  DataTypeConversion: '<Root>/Short1'
-   *  Gain: '<Root>/Gain1'
+  /* End of DataTypeConversion: '<Root>/Short' */
+
+  /* Gain: '<Root>/Gain1' incorporates:
    *  Inport: '<Root>/DTACQIN'
+   *  Outport: '<Root>/DTACQOUT'
    */
-  ST40PCS_Y.DTACQOUT[32] = (int16_T)((ST40PCS_P.SATGain2[0] * ST40PCS_U.DTACQIN
-    [128] + ST40PCS_P.SATGain2[2] * ST40PCS_U.DTACQIN[129]) >> 15);
-  ST40PCS_Y.DTACQOUT[33] = (int16_T)((ST40PCS_P.SATGain2[1] * ST40PCS_U.DTACQIN
-    [128] + ST40PCS_P.SATGain2[3] * ST40PCS_U.DTACQIN[129]) >> 15);
+  for (i = 0; i < 4; i++) {
+    tmp_2 = (int16_T)((int16_T)(ST40PCS_P.SATGain2[i + 12] * ST40PCS_U.DTACQIN
+      [263] >> 14) + (int16_T)((int16_T)(ST40PCS_P.SATGain2[i + 8] *
+      ST40PCS_U.DTACQIN[262] >> 14) + (int16_T)((int16_T)(ST40PCS_P.SATGain2[i +
+      4] * ST40PCS_U.DTACQIN[261] >> 14) + (int16_T)(ST40PCS_P.SATGain2[i] *
+      ST40PCS_U.DTACQIN[260] >> 14))));
+    tmp_1[i] = tmp_2;
+  }
+
+  /* End of Gain: '<Root>/Gain1' */
+
+  /* Outport: '<Root>/DTACQOUT' incorporates:
+   *  Constant: '<Root>/Constant'
+   */
+  for (i = 0; i < 32; i++) {
+    ST40PCS_Y.DTACQOUT[i] = tmp[i];
+    ST40PCS_Y.DTACQOUT[i + 32] = ST40PCS_P.Constant_Value[i];
+  }
+
+  ST40PCS_Y.DTACQOUT[64] = tmp_1[0];
+  ST40PCS_Y.DTACQOUT[65] = tmp_1[1];
+  ST40PCS_Y.DTACQOUT[66] = tmp_1[2];
+  ST40PCS_Y.DTACQOUT[67] = tmp_1[3];
 
   /* Matfile logging */
   rt_UpdateTXYLogVars(ST40PCS_M->rtwLogInfo, (&ST40PCS_M->Timing.taskTime0));
@@ -144,11 +162,11 @@ void ST40PCS_initialize(void)
 
   /* external inputs */
   (void) memset(ST40PCS_U.DTACQIN, 0,
-                130U*sizeof(int16_T));
+                272U*sizeof(int16_T));
 
   /* external outputs */
   (void) memset(&ST40PCS_Y.DTACQOUT[0], 0,
-                34U*sizeof(int16_T));
+                68U*sizeof(int16_T));
 
   /* Matfile logging */
   rt_StartDataLoggingWithStartTime(ST40PCS_M->rtwLogInfo, 0.0, rtmGetTFinal

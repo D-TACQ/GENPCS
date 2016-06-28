@@ -3,9 +3,9 @@
  *
  * Code generation for model "ST40PCS".
  *
- * Model version              : 1.4
+ * Model version              : 1.11
  * Simulink Coder version : 8.10 (R2016a) 10-Feb-2016
- * C source code generated on : Thu Jun  9 10:14:36 2016
+ * C source code generated on : Tue Jun 28 14:55:13 2016
  *
  * Target selection: grt.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -76,21 +76,24 @@
 
 /* External inputs (root inport signals with auto storage) */
 typedef struct {
-  int16_T DTACQIN[130];                /* '<Root>/DTACQIN' */
+  int16_T DTACQIN[272];                /* '<Root>/DTACQIN' */
 } ExtU_ST40PCS_T;
 
 /* External outputs (root outports fed by signals with auto storage) */
 typedef struct {
-  int16_T DTACQOUT[34];                /* '<Root>/DTACQOUT' */
+  int16_T DTACQOUT[68];                /* '<Root>/DTACQOUT' */
 } ExtY_ST40PCS_T;
 
 /* Parameters (auto storage) */
 struct P_ST40PCS_T_ {
-  real_T SATGain1[4096];               /* Variable: SATGain1
+  real_T SATGain1[8192];               /* Variable: SATGain1
                                         * Referenced by: '<Root>/Gain'
                                         */
-  int16_T SATGain2[4];                 /* Variable: SATGain2
+  int16_T SATGain2[16];                /* Variable: SATGain2
                                         * Referenced by: '<Root>/Gain1'
+                                        */
+  int16_T Constant_Value[32];          /* Computed Parameter: Constant_Value
+                                        * Referenced by: '<Root>/Constant'
                                         */
 };
 
