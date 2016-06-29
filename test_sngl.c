@@ -41,7 +41,7 @@ ST40PCS_Y;		// ditto
 
 	linux_rt_init(argc, argv);
 
-	dbg(1, "file %s flavour %s", __FILE__, FLAVOUR);
+	dbg(1, "file %s flavour %s %s", __FILE__, FLAVOUR, MEMCPY);
 
 	acq0 = acq_init(G_lun);
 	ST40PCS_initialize();
@@ -56,13 +56,13 @@ ST40PCS_Y;		// ditto
 	goRealTime();
 
 	for (sample = 0; sample < N_iter; ++sample){
-		memcpy(acq0->AO, ST40PCS_Y.DTACQOUT, LUN0_AO*SS);
-		memcpy(acq0->DO, ST40PCS_Y.DTACQOUT+LUN0_AO, LUN0_DO*US);
+		pmemcpy(acq0->AO, ST40PCS_Y.DTACQOUT, LUN0_AO*SS);
+		pmemcpy(acq0->DO, ST40PCS_Y.DTACQOUT+LUN0_AO, LUN0_DO*US);
 
 		acq_IO(acq0);
 
-		memcpy(ST40PCS_U.DTACQIN, acq0->AI, LUN0_AI*SS);
-		memcpy(ST40PCS_U.DTACQIN+128, acq0->DI, LUN0_DI*US);
+		memcpy(ST40PCS_U.DTACQIN, acq0->lbuf, LUN0_AI*SS);
+		memcpy(ST40PCS_U.DTACQIN+128, acq0->lbuf+LUN0_AI, LUN0_DI*US);
 		/* ST40PCS_U.?? = acq0->sample_count); */
 		ST40PCS_step();
 

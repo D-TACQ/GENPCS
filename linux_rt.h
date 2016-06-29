@@ -28,4 +28,22 @@ extern void yield();
 #define mS	1000
 #define uS	(1000*mS)
 #define NS	(1000*uS)
+
+#ifdef __USE_MEMCPY__
+#define pmemcpy memcpy
+#define MEMCPY "memcpy"
+#else
+static void pmemcpy(void *to, void *from, int nbytes)
+{
+	unsigned* tou = (unsigned*)to;
+	unsigned* fromu = (unsigned*)from;
+	int nu = nbytes/4;
+
+	while(nu--){
+		*tou++ = *fromu++;
+	}
+}
+#define MEMCPY "pmemcpy"
+#endif
+
 #endif /* TE_LINUX_RT_H_ */
