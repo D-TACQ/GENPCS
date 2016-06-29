@@ -117,7 +117,7 @@ void acq_IO(ACQ* acq)
 	struct TS *ts = &acq->ts[acq->sample];
 
 	ts->gts_before = get_gt_usec(0);
-	memcpy(acq->lbuf, acq->VI, acq->vi_len);
+
 	for (; (tl1 = *acq->SPAD) == tl0; ++pollcat){
 		yield();
 		if (acq->sample && pollcat > 100000 && get_gt_usec(0) > ts->gts_before + 100000){
@@ -127,7 +127,7 @@ void acq_IO(ACQ* acq)
 			raise(SIGINT);
 		}
 	}
-	memcpy(acq->lbuf, acq->VI, acq->vi_len);
+	pmemcpy(acq->lbuf, acq->VI, acq->vi_len);
 	ts->gts_after = get_gt_usec(acq->sample == 0);
 	ts->pollcat = pollcat;
 	ts->tl = acq->sample_count = tl1;
