@@ -61,8 +61,8 @@ ST40PCS_Y;		// ditto
 
 		acq_IO(acq0);
 
-		memcpy(ST40PCS_U.DTACQIN, acq0->AI, LUN0_AI*SS);
-		memcpy(ST40PCS_U.DTACQIN+128, acq0->DI, LUN0_DI*US);
+		memcpy(ST40PCS_U.DTACQIN, acq0->lbuf, LUN0_AI*SS);
+		memcpy(ST40PCS_U.DTACQIN+128, acq0->lbuf+LUN0_AI, LUN0_DI*US);
 		/* ST40PCS_U.?? = acq0->sample_count); */
 		ST40PCS_step();
 
