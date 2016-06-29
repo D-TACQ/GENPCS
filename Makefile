@@ -21,6 +21,8 @@ nul:
 ifdef $(DEBUG)
 CFLAGS+=-g
 endif
+CFLAGS+=-O1
+
 # do NOT make these products singly, use top level commands above
 acq_sngl: test_acq_sngl.o ST40PCS_stub.o acq.o linux_rt.o 
 	$(CC) $(CFLAGS) -o $@ $^
