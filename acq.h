@@ -19,10 +19,14 @@
 
 /** TS : stats, may be copied to MODEL */
 struct TS {
-	unsigned tl;			// tlatch[lun]
+	unsigned DI;
+	unsigned tl;			// tlatch[lun], really sample count
+	unsigned usecs;			// microsecond counter from hw (future)
 	unsigned gts_before;		// x86 ts, before poll
 	unsigned gts_after;		// x86 ts, after poll
 	unsigned pollcat;
+	unsigned pad1;
+	unsigned pad2;
 };
 
 typedef struct ACQ {

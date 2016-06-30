@@ -131,6 +131,7 @@ void acq_IO(ACQ* acq)
 	ts->gts_after = get_gt_usec(acq->sample == 0);
 	ts->pollcat = pollcat;
 	ts->tl = acq->sample_count = tl1;
+	ts->DI = * (unsigned*)(acq->lbuf + acq->nai);
 
 	acq->sample++;
 
