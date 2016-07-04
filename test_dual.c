@@ -65,19 +65,19 @@ ST40PCS_Y;
 
 	for (sample = 0; sample < N_iter; ++sample){
 		pmemcpy(acq0->AO, VO->ACQ.AO0+MSI_PCS1_AO, LUN0_AO*SS);
-		pmemcpy(acq1->AO, VO->ACQ.AO0+MSI_PCS2_AO, LUN1_AO*SS);
 		pmemcpy(acq0->DO, VO->ACQ.DO0+MSI_PCS1_DO, LUN0_DO*US);
+		pmemcpy(acq1->AO, VO->ACQ.AO0+MSI_PCS2_AO, LUN1_AO*SS);
 		pmemcpy(acq1->DO, VO->ACQ.DO1+MSI_PCS2_DO, LUN1_DO*US);
 
 		acq_IO(acq0);	/* blocks */
 		acq_IO(acq1);	/* should come right back.. */
 
 		memcpy(VI->ACQ.AI0, acq0->lbuf+ASI_LUN0_AI, LUN0_AI*SS);
-		memcpy(VI->ACQ.AI0, acq0->lbuf+ASI_LUN1_AI, LUN1_AI*SS);
 		memcpy(VI->ACQ.DI0, acq0->lbuf+ASI_LUN0_DI, LUN0_DI*US);
-		memcpy(VI->ACQ.DI1, acq0->lbuf+ASI_LUN1_DI, LUN1_DI*US);
 		memcpy(VI->ACQ.ST0, acq0->lbuf+ASI_LUN0_ST, LUN0_ST*US);
-		memcpy(VI->ACQ.ST1, acq0->lbuf+ASI_LUN1_ST, LUN1_ST*US);
+		memcpy(VI->ACQ.AI0, acq1->lbuf+ASI_LUN1_AI, LUN1_AI*SS);
+		memcpy(VI->ACQ.DI1, acq1->lbuf+ASI_LUN1_DI, LUN1_DI*US);
+		memcpy(VI->ACQ.ST1, acq1->lbuf+ASI_LUN1_ST, LUN1_ST*US);
 
 		ST40PCS_step();
 
