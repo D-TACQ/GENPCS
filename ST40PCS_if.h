@@ -58,8 +58,8 @@ union VI_OVERLAY {
 		short AI1[MAX_AI_PER_BOX];
 		u32 DI0[MAX_DI_PER_BOX];
 		u32 DI1[MAX_DI_PER_BOX];
-		u32 STA0[STATUS_LEN];
-		u32 STA1[STATUS_LEN];
+		u32 ST0[STATUS_LEN];
+		u32 ST1[STATUS_LEN];
 	} ACQ;
 };
 
@@ -70,7 +70,7 @@ union VI_OVERLAY {
 
 #define MSI_AI		OFFSETS(struct VI_ACQ, AI0)
 #define MSI_DI		OFFSETS(struct VI_ACQ, DI0)
-#define MSI_STA 	OFFSETS(struct VI_ACQ, STA0)
+#define MSI_ST 		OFFSETS(struct VI_ACQ, ST0)
 
 /* index to the actual box should it be needed (eg for STA) */
 #define MSI_PCS1_AI	OFFSETS(struct VI_ACQ, AI0)
@@ -79,8 +79,8 @@ union VI_OVERLAY {
 #define MSI_PCS1_DI	OFFSETS(struct VI_ACQ, DI0)
 #define MSI_PCS2_DI	OFFSETS(struct VI_ACQ, DI1)
 
-#define MSI_PCS1_STA	OFFSETS(struct VI_ACQ, STA0)
-#define MSI_PCS2_STA	OFFSETS(struct VI_ACQ, STA1)
+#define MSI_PCS1_ST	OFFSETS(struct VI_ACQ, ST0)
+#define MSI_PCS2_ST	OFFSETS(struct VI_ACQ, ST1)
 
 #define MAX_AO_PER_BOX	(1*32)		// channels
 #define MAX_DO_PER_BOX  (4)		// 32 bit values

@@ -35,10 +35,24 @@ int main(int argc, char* argv[])
 ST40PCS_U;
 ST40PCS_Y;
 #endif
+#include "ST40PCS_if.h"
 	int sample;
 	int ii;
 	ACQ* acq0;
 	ACQ* acq1;
+	union VI_OVERLAY* VI = (union VI_OVERLAY*)ST40PCS_U.DTACQIN;
+	union VO_OVERLAY* VO = (union VO_OVERLAY*)ST40PCS_Y.DTACQOUT;
+
+	if (sizeof(ST40PCS_U.DTACQIN) != sizeof(union VI_OVERLAY)){
+		fprintf(stderr, "ERROR: mismatch %s %d != %d\n",
+				"VI", sizeof(ST40PCS_U.DTACQIN), sizeof(union VI_OVERLAY));
+		return 1;
+	}
+	if (sizeof(ST40PCS_Y.DTACQOUT) != sizeof(union VO_OVERLAY)){
+		fprintf(stderr, "ERROR: mismatch %s %d != %d\n",
+				"VO", sizeof(ST40PCS_Y.DTACQOUT), sizeof(union VO_OVERLAY));
+		return 1;
+	}
 
 	linux_rt_init(argc, argv);
 
@@ -50,23 +64,20 @@ ST40PCS_Y;
 	goRealTime();
 
 	for (sample = 0; sample < N_iter; ++sample){
-		int ix = 0;
-		memcpy(acq0->AO, ST40PCS_Y.DTACQOUT+ix,	LUN0_AO*SS); 	ix += LUN0_AO;
-		memcpy(acq0->DO, ST40PCS_Y.DTACQOUT+ix, LUN0_DO*US); 	ix += LUN0_DO*US/SS;
-		memcpy(acq1->AO, ST40PCS_Y.DTACQOUT+ix, LUN0_AO*SS);	ix += LUN1_AO;
-		memcpy(acq1->DO, ST40PCS_Y.DTACQOUT+ix, LUN0_DO*SS);
+		pmemcpy(acq0->AO, VO->ACQ.AO0+MSI_PCS1_AO, LUN0_AO*SS);
+		pmemcpy(acq1->AO, VO->ACQ.AO0+MSI_PCS2_AO, LUN1_AO*SS);
+		pmemcpy(acq0->DO, VO->ACQ.DO0+MSI_PCS1_DO, LUN0_DO*US);
+		pmemcpy(acq1->DO, VO->ACQ.DO1+MSI_PCS2_DO, LUN1_DO*US);
 
 		acq_IO(acq0);	/* blocks */
 		acq_IO(acq1);	/* should come right back.. */
 
-		ix = 0;
-		memcpy(ST40PCS_U.DTACQIN+ix, acq0->AI, LUN0_AI*SS);	ix += LUN0_AI;
-		memcpy(ST40PCS_U.DTACQIN+ix, acq0->DI, LUN0_DI*US);	ix += LUN0_DI*US/SS;
-		/* ST40PCS_U.?? = acq0->sample_count); */
-
-		memcpy(ST40PCS_U.DTACQIN+ix, acq1->AI, 128*SS);		ix += LUN1_AI;
-		memcpy(ST40PCS_U.DTACQIN+ix, acq1->AI, 128*SS);
-		/* ST40PCS_U.?? = acq1->sample_count); */
+		memcpy(VI->ACQ.AI0, acq0->lbuf+ASI_LUN0_AI, LUN0_AI*SS);
+		memcpy(VI->ACQ.AI0, acq0->lbuf+ASI_LUN1_AI, LUN1_AI*SS);
+		memcpy(VI->ACQ.DI0, acq0->lbuf+ASI_LUN0_DI, LUN0_DI*US);
+		memcpy(VI->ACQ.DI1, acq0->lbuf+ASI_LUN1_DI, LUN1_DI*US);
+		memcpy(VI->ACQ.ST0, acq0->lbuf+ASI_LUN0_ST, LUN0_ST*US);
+		memcpy(VI->ACQ.ST1, acq0->lbuf+ASI_LUN1_ST, LUN1_ST*US);
 
 		ST40PCS_step();
 

@@ -18,8 +18,6 @@
 #include "local.h"
 #include "linux_rt.h"
 
-
-
 #ifndef ST40_MOD
 #include "ST40PCS_stub.h"
 #endif
@@ -35,9 +33,23 @@ int main(int argc, char* argv[])
 ST40PCS_U;		// this statement seems redundant, but if it ain't broke ..
 ST40PCS_Y;		// ditto
 #endif
+#include "ST40PCS_if.h"
 	int sample;
 	int ii;
 	ACQ* acq0;
+	union VI_OVERLAY* VI = (union VI_OVERLAY*)ST40PCS_U.DTACQIN;
+	union VO_OVERLAY* VO = (union VO_OVERLAY*)ST40PCS_Y.DTACQOUT;
+
+	if (sizeof(ST40PCS_U.DTACQIN) != sizeof(union VI_OVERLAY)){
+		fprintf(stderr, "ERROR: mismatch %s %d != %d\n",
+				"VI", sizeof(ST40PCS_U.DTACQIN), sizeof(union VI_OVERLAY));
+		return 1;
+	}
+	if (sizeof(ST40PCS_Y.DTACQOUT) != sizeof(union VO_OVERLAY)){
+		fprintf(stderr, "ERROR: mismatch %s %d != %d\n",
+				"VO", sizeof(ST40PCS_Y.DTACQOUT), sizeof(union VO_OVERLAY));
+		return 1;
+	}
 
 	linux_rt_init(argc, argv);
 
@@ -46,24 +58,19 @@ ST40PCS_Y;		// ditto
 	acq0 = acq_init(G_lun);
 	ST40PCS_initialize();
 
-	if (verbose > 2){
-		FILE *fp = popen("hexdump", "w");
-		printf("initial OUT values\n");
-		fwrite(ST40PCS_Y.DTACQOUT, sizeof(ST40PCS_Y.DTACQOUT), 1, fp);
-		pclose(fp);
-	}
 	dbg(1, "Starting");
 	goRealTime();
 
 	for (sample = 0; sample < N_iter; ++sample){
-		pmemcpy(acq0->AO, ST40PCS_Y.DTACQOUT, LUN0_AO*SS);
-		pmemcpy(acq0->DO, ST40PCS_Y.DTACQOUT+LUN0_AO, LUN0_DO*US);
+		pmemcpy(acq0->AO, VO->ACQ.AO0, LUN0_AO*SS);
+		pmemcpy(acq0->DO, VO->ACQ.DO0, LUN0_DO*US);
 
 		acq_IO(acq0);
 
-		memcpy(ST40PCS_U.DTACQIN, acq0->lbuf, LUN0_AI*SS);
-		memcpy(ST40PCS_U.DTACQIN+128, acq0->lbuf+LUN0_AI, LUN0_DI*US);
-		/* ST40PCS_U.?? = acq0->sample_count); */
+		memcpy(VI->ACQ.AI0, acq0->lbuf+ASI_LUN0_AI, LUN0_AI*SS);
+		memcpy(VI->ACQ.DI0, acq0->lbuf+ASI_LUN0_DI, LUN0_DI*US);
+		memcpy(VI->ACQ.ST0, acq0->lbuf+ASI_LUN0_ST, LUN0_ST*US);
+
 		ST40PCS_step();
 
                 if(verbose > 4 && sample<20) {		/* do not print in RT mode */

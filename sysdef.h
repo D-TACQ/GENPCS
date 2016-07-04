@@ -40,12 +40,22 @@
 #define LUN0_DI 1
 #define LUN0_AO 32
 #define LUN0_DO 1
+#define LUN0_ST 4
+
+/** ASI : ACQ Short Index .. index in shorts */
+#define ASI_LUN0_AI	0
+#define ASI_LUN0_DI	LUN0_AI
+#define ASI_LUN0_ST	(ASI_LUN0_DI+2)
 
 #define LUN1_AI	128
 #define LUN1_DI 1
 #define LUN1_AO 32
 #define LUN1_DO 1
+#define LUN1_ST 4
 
+#define ASI_LUN1_AI	0
+#define ASI_LUN1_DI	LUN1_AI
+#define ASI_LUN1_ST	(ASI_LUN1_DI+2)
 
 /* MODEL definition : MUST MATCH ST40PCS.h */
 
