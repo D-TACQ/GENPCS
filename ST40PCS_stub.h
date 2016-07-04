@@ -24,12 +24,12 @@ typedef unsigned uint32_T;
 
 /* External inputs (root inport signals with auto storage) */
 typedef struct {
-  int16_T DTACQIN[272];                /* '<Root>/DTACQIN' */
+  int16_T DTACQIN[384];                /* '<Root>/DTACQIN' */
 } ExtU_ST40PCS_T;
 
 /* External outputs (root outports fed by signals with auto storage) */
 typedef struct {
-  int16_T DTACQOUT[68];                /* '<Root>/DTACQOUT' */
+  int16_T DTACQOUT[80];                /* '<Root>/DTACQOUT' */
 } ExtY_ST40PCS_T;
 
 
