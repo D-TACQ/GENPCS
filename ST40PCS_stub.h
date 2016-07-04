@@ -20,6 +20,7 @@
 #define __ST40PCS_H__
 
 typedef short int16_T;
+typedef unsigned uint32_T;
 
 /* External inputs (root inport signals with auto storage) */
 typedef struct {
