@@ -48,7 +48,7 @@ nul_sngl: test_acq_sngl.o ST40PCS_stub.o acq_stub.o linux_rt.o
 nul_dual: test_acq_dual.o ST40PCS_stub.o acq_stub.o linux_rt.o
 	$(CC) $(CFLAGS) -o $@ $^
 
-tests: pig
+tests: pig ST40PCS_consts
 	
 pig: pig.o linux_rt.o
 	$(CC) $(CFLAGS) -o $@ $^
@@ -73,6 +73,6 @@ cleano: FORCE
 	rm -Rf test*.o
 		
 clean: FORCE
-	rm -f *.o *_sngl *_dual
+	rm -f *.o *_sngl *_dual pig ST40PCS_consts
 	
 FORCE:

@@ -61,11 +61,12 @@
 
 int main()
 {
-	union VI_OVERLAY xx;
+	union VI_OVERLAY VI;
+	union VO_OVERLAY VO;
 
-	printf("structure sizes in bytes\n");
-	PRINT(sizeof xx.DTACQIN);
-	PRINT(sizeof xx.ACQ);
+	printf("VI structure sizes in bytes\n");
+	PRINT(sizeof VI.DTACQIN);
+	PRINT(sizeof VI.ACQ);
 
 	printf("total interface size shorts\n");
 	PRINT(VI_SHORTS);
@@ -75,7 +76,7 @@ int main()
 	PRINT(MAX_DI_PER_BOX);
 	PRINT(STATUS_LEN);
 
-	printf("Index in DTACQ in (shorts)\n");
+	printf("Index in DTACQIN (shorts)\n");
 	PRINT( MSI_AI);
 	PRINT( MSI_DI);
 	PRINT( MSI_STA);
@@ -90,4 +91,21 @@ int main()
 	PRINT( MSI_PCS1_STA);
 	PRINT( MSI_PCS2_STA);
 
+	printf("\nVO structure sizes in bytes\n");
+	PRINT(sizeof VO.DTACQOUT);
+	PRINT(sizeof VO.ACQ);
+
+	printf("total interface size shorts\n");
+	PRINT(VO_SHORTS);
+	printf("AO count (shorts)\n");
+	PRINT(MAX_AO_PER_BOX);
+	printf("DO count (u32)\n");
+	PRINT(MAX_DO_PER_BOX);
+	printf("Index in DTACQOUT (shorts)\n");
+	PRINT(MSI_AO);
+	PRINT(MSI_DO);
+	PRINT(MSI_PCS1_AO);
+	PRINT(MSI_PCS2_AO);
+	PRINT(MSI_PCS1_DO);
+	PRINT(MSI_PCS2_DO);
 }

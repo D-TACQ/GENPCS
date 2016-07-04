@@ -28,6 +28,11 @@
 
 #include <stddef.h>
 
+#ifdef ST40_MOD
+#define u32 uint32_T
+// #define short uint16_T  // could be problematic..
+#endif
+
 /* MODel works in shorts .. compute offsets in shorts */
 
 #define OFFSETS(type, member) (offsetof(type, member)/sizeof(int16_T))
@@ -39,6 +44,7 @@
 #define MAX_DI_PER_BOX  (4)		// 32 bit values
 #define STATUS_LEN	(12)
 
+/* VI is a composite of both boxes */
 #define VI_SHORTS	(2*MAX_AI_PER_BOX + (2*MAX_DI_PER_BOX+2*STATUS_LEN)*2)
 
 
@@ -76,6 +82,32 @@ union VI_OVERLAY {
 #define MSI_PCS1_STA	OFFSETS(struct VI_ACQ, STA0)
 #define MSI_PCS2_STA	OFFSETS(struct VI_ACQ, STA1)
 
+#define MAX_AO_PER_BOX	(1*32)		// channels
+#define MAX_DO_PER_BOX  (4)		// 32 bit values
+
+#define VO_SHORTS	(2*MAX_AO_PER_BOX + 2*MAX_DO_PER_BOX)
+
+/** define an overlay for the MODEL and ACQ definitions of the
+ * Output Vector VO
+ */
+union VO_OVERLAY {
+	int16_T DTACQOUT[VO_SHORTS];	// Simulink uses this
+	struct VO_ACQ {
+		short AO0[MAX_AO_PER_BOX];
+		short AO1[MAX_AO_PER_BOX];
+		u32 DO0[MAX_DO_PER_BOX];
+		u32 DO1[MAX_DO_PER_BOX];
+	} ACQ;
+};
+
+#define MSI_AO		OFFSETS(struct VO_ACQ, AO0)
+#define MSI_DO		OFFSETS(struct VO_ACQ, DO0)
+
+#define MSI_PCS1_AO	OFFSETS(struct VO_ACQ, AO0)
+#define MSI_PCS2_AO	OFFSETS(struct VO_ACQ, AO1)
+
+#define MSI_PCS1_DO	OFFSETS(struct VO_ACQ, DO0)
+#define MSI_PCS2_DO	OFFSETS(struct VO_ACQ, DO1)
 
 
 #endif /* ST40PCS_IF_H_ */
