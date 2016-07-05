@@ -75,7 +75,7 @@ ST40PCS_Y;
 		memcpy(VI->ACQ.AI0, acq0->lbuf+ASI_LUN0_AI, LUN0_AI*SS);
 		memcpy(VI->ACQ.DI0, acq0->lbuf+ASI_LUN0_DI, LUN0_DI*US);
 		memcpy(VI->ACQ.ST0, acq0->lbuf+ASI_LUN0_ST, LUN0_ST*US);
-		memcpy(VI->ACQ.AI0, acq1->lbuf+ASI_LUN1_AI, LUN1_AI*SS);
+		memcpy(VI->ACQ.AI1, acq1->lbuf+ASI_LUN1_AI, LUN1_AI*SS);
 		memcpy(VI->ACQ.DI1, acq1->lbuf+ASI_LUN1_DI, LUN1_DI*US);
 		memcpy(VI->ACQ.ST1, acq1->lbuf+ASI_LUN1_ST, LUN1_ST*US);
 
