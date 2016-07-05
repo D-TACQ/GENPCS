@@ -57,8 +57,6 @@ void _ST40PCS_step(short *AI, short* AO, short* DO)
 	DO[0] = iter<<8 | 		//counter
 		(ST40PCS_U.DTACQIN[0]>0? 1<<1: 0) |	//mod(AI0)
 		(iter>>1&1? 1<<0:0);	 		//toggles at SR
-
-	++iter;
 }
 /** fake "feedback algorithm"
  * Example doubles up to provide SAME function both boxes.
@@ -72,7 +70,7 @@ void ST40PCS_step(void)
 		ST40PCS_Y.DTACQOUT + MSI_PCS1_DO);
 
 	_ST40PCS_step(
-		ST40PCS_U.DTACQIN  + MSI_PCS2_AI,
+		ST40PCS_U.DTACQIN  + MSI_PCS1_AI,   /* !! using AI1 to save cables */
 		ST40PCS_Y.DTACQOUT + MSI_PCS2_AO,
 		ST40PCS_Y.DTACQOUT + MSI_PCS2_DO);
 
