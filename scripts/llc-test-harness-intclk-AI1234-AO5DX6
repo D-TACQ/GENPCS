@@ -6,8 +6,8 @@
 
 # MUST set remote ip-address
 REMIP=${1:-acq2106_032}
-INTCLKDIV=${INTCLKDIV:-660}		# 66M/660 = 1MHz
-EXTCLKDIV=${EXTCLKDIV:-1}		# 1M/1 = 1MHz
+INTCLKDIV=${INTCLKDIV:-660}		# 66M/660 = 100kHz
+EXTCLKDIV=${EXTCLKDIV:-10}		# 1M/10 = 100kHz
 STREAMPID=0
 
 
@@ -38,12 +38,12 @@ init_comms() {
 
 init_2106() {
 	if [ "$LLC_TRG" = "ext" ]; then
-		remote_cmd $AI trg=1,2,1
+		remote_cmd $AI trg=1,0,1
 	else
 		remote_cmd $AI trg=1,1,1
 	fi
 	if [ "$LLC_CLK" = "ext" ]; then
-		remote_cmd $AI clk=1,2,1
+		remote_cmd $AI clk=1,1,1
 		remote_cmd $AI clkdiv=$EXTCLKDIV
 		echo setting external clock / $EXTCLKDIV
 	else
@@ -97,13 +97,18 @@ cleanup() {
 	remote_cmd $SC streamtonowhered stop
 }
 
+if [ "x$2" != "x" ]; then
+	$2
+else
+trap "cleanup" SIGINT SIGTERM
+
 init_2106
 echo HIT CR to start_stream
 read stuff
 start_stream
 echo now view data perhaps using ./mapsample
 echo CTRL-C to quit
-trap "cleanup" SIGINT SIGTERM
 
 sleep 99999
+fi
 

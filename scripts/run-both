@@ -1,0 +1,21 @@
+#!/bin/bash
+
+export LLC_TRG=ext LLC_CLK=ext
+export UUTS="acq2106_033 acq2106_032"
+
+gofer() {
+	for uut in $UUTS
+	do
+		./scripts/llc-test-harness-intclk-AI1234-AO5DX6 $uut $1
+	done
+}
+
+gofer init_2106
+gofer start_stream
+
+echo run-both hit CR to end
+read enough
+
+gofer cleanup
+
+
