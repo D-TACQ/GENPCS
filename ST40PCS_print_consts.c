@@ -55,7 +55,7 @@ int main()
 	printf("Index in DTACQIN (shorts)\n");
 	PRINT( MSI_AI);
 	PRINT( MSI_DI);
-	PRINT( MSI_STA);
+	PRINT( MSI_ST);
 
 /* index to the actual box should it be needed (eg for STA) */
 	PRINT( MSI_PCS1_AI);
@@ -64,8 +64,8 @@ int main()
 	PRINT( MSI_PCS1_DI);
 	PRINT( MSI_PCS2_DI);
 
-	PRINT( MSI_PCS1_STA);
-	PRINT( MSI_PCS2_STA);
+	PRINT( MSI_PCS1_ST);
+	PRINT( MSI_PCS2_ST);
 
 	printf("\nVO structure sizes in bytes\n");
 	PRINT(sizeof VO.DTACQOUT);
