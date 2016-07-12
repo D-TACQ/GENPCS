@@ -221,6 +221,7 @@ ACQ* createACQ(int lun)
 
 	acq->lbuf = calloc(acq->vi_len, 1);
 	acq->ts = calloc(N_iter, sizeof(struct TS));
+	return acq;
 }
 
 static ACQ* acq_stack[2];
