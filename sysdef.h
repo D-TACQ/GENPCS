@@ -36,9 +36,9 @@
 
 /* both boxes fake full complement of IO, so are the same */
 
-#define LUN0_AI	128
+#define LUN0_AI	160
 #define LUN0_DI 1
-#define LUN0_AO 32
+#define LUN0_AO 0
 #define LUN0_DO 1
 #define LUN0_ST 4
 

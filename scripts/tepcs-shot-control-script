@@ -1,0 +1,123 @@
+#!/bin/bash
+# llc-test-harness-intclk-AI1-AO4-zcopy
+# AI+AO llc with zerocopy on one fiber. Basic LLC test
+
+[ -d scripts ] && cd scripts
+
+# MUST set remote ip-address
+REMIP=${1:-acq2106_032}
+INTCLKDIV=${INTCLKDIV:-660}		# 66M/660 = 100kHz
+EXTCLKDIV=${EXTCLKDIV:-10}		# 1M/10 = 100kHz
+STREAMPID=0
+
+case $1 in 
+acq2106_032)
+	XISITES=1,2,3,4,5,6
+	XOSITES=6
+	AI=1
+	AO=-1
+	DIO=6;;
+acq2106_033)
+	XISITES=1,2,3,4,6
+	XOSITES=5,6
+	AI=1
+	AO=5
+	DIO=6;;
+*)
+	echo ERROR, unknown UUT; exit 1;;
+esac
+
+source afhba-common
+# site definitions SC: system controller, CB: commsB, AI: AI, AO : AO
+SC=0
+CA=13
+CB=12
+
+CA_SITES=$XISITES
+CB_SITES=$XISITES
+
+init_comms() {	
+	cx=$1
+	sites=$2
+	
+#	remote_cmd $cx spad=0
+	remote_cmd $cx aggregator sites=$sites
+}
+
+
+init_2106() {
+	if [ "$LLC_TRG" = "ext" ]; then
+		remote_cmd $AI trg=1,0,1
+	else
+		remote_cmd $AI trg=1,1,1
+	fi
+	if [ "$LLC_CLK" = "ext" ]; then
+		remote_cmd $AI clk=1,1,1
+		remote_cmd $AI clkdiv=$EXTCLKDIV
+		echo setting external clock / $EXTCLKDIV
+	else
+		remote_cmd $AI clk=0,0,0
+		remote_cmd $AI clkdiv=$INTCLKDIV
+		echo setting internal clock / $INTCLKDIV
+	fi
+	remote_cmd $SC distributor sites=$XOSITES comms=1 pad=15 on
+	if [ $AO -gt 0 ]; then
+		remote_cmd $AO lotide 256
+		remote_cmd $AO clk=1,2,1
+		remote_cmd $AO clkdiv=1 
+		remote_cmd $AO trg=1,2,1
+	fi
+	if [ $DIO -gt 0 ]; then
+		remote_cmd $DIO clk=1,2,1
+		remote_cmd $DIO clkdiv=1
+		remote_cmd $DIO trg=1,2,1
+		remote_cmd $DIO mode=1
+	fi
+
+
+	remote_cmd $SC spad=1,15,0	
+	remote_cmd $SC run0 $XISITES
+#	remote_cmd $CB aggregator sites=1 on
+	remote_cmd $CB spad 1,15,0
+	
+	init_comms $CA $CA_SITES
+	init_comms $CB $CB_SITES
+	
+}
+
+start_stream() {
+	if [ "x$TRANSIENT" != "x" ]; then
+		if [ $TRANSIENT -gt 1000 ]; then
+			POST=$TRANSIENT
+		else
+			POST=100000
+		fi
+		remote_cmd $SC transient POST=$POST SOFT_TRIGGER=1
+		remote_cmd $SC set_arm
+	else
+		remote_cmd $SC streamtonowhered start
+	fi
+}
+
+
+cleanup() {
+#	kill ${STREAMPID}
+	[ $AO -gt 0 ] && remote_cmd $AO playloop_length 0
+	remote_cmd $SC streamtonowhered stop
+}
+
+if [ "x$2" != "x" ]; then
+	$2
+else
+trap "cleanup" SIGINT SIGTERM
+
+init_2106
+echo HIT CR to start_stream
+read stuff
+start_stream
+echo now view data perhaps using ./mapsample
+echo CTRL-C to quit
+
+sleep 99999
+fi
+
