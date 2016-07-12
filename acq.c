@@ -31,6 +31,8 @@ char sigint_message[128];
 
 static ACQ* createACQ(int lun);
 
+#define HB_LEN	0x1000
+
 #ifdef ST40_ACQ
 #include <errno.h>
 #include <fcntl.h>
@@ -44,7 +46,7 @@ static ACQ* createACQ(int lun);
 
 #include "rtm-t_ioctl.h"
 #define HB_FILE "/dev/rtm-t.%d"
-#define HB_LEN	0x1000
+
 
 extern int errno;
 
@@ -69,22 +71,11 @@ void* get_mapping(ACQ* acq) {
 	return host_buffer;
 }
 
-
-ACQ* _acq_init(int lun)
+ACQ* __acq_init(ACQ* acq)
 {
-	int ii;
 	struct XLLC_DEF xllc_def = {
 		.pa = RTM_T_USE_HOSTBUF,
 	};
-
-	ACQ* acq = createACQ(lun);
-
-	acq->VI = acq->AI = get_mapping(acq);
-	acq->DI = (unsigned*)(acq->AI+acq->nai);
-	acq->SPAD = (unsigned*)(acq->AI+acq->nai)+acq->ndi;
-
-	dbg(2, "acq_init(%d) SPAD %p [0x%x b]", lun,
-				acq->SPAD, (char*)acq->SPAD - (char*)acq->VI);
 
 	xllc_def.len = acq->vi_len;
 	if (ioctl(acq->fd, AFHBA_START_AI_LLC, &xllc_def)){
@@ -94,10 +85,6 @@ ACQ* _acq_init(int lun)
 	dbg(1, "AI buf pa: 0x%08x len %d\n", xllc_def.pa, xllc_def.len);
 
 	acq->pai = xllc_def.pa;
-
-	acq->VO = acq->AO = (short*)((char*)acq->VI+HB_LEN);
-	acq->DO = (unsigned*)(acq->VO+acq->nao);
-
 	xllc_def.pa += HB_LEN;
 	xllc_def.len = acq->vo_len;
 
@@ -108,7 +95,9 @@ ACQ* _acq_init(int lun)
 	dbg(1, "AO buf pa: 0x%08x len %d\n", xllc_def.pa, xllc_def.len);
 
 	acq->pao = xllc_def.pa;
+	return acq;
 }
+
 void acq_IO(ACQ* acq)
 {
 	unsigned tl0 = acq->sample_count;
@@ -176,16 +165,13 @@ void acq_terminate(ACQ* acq)
 
 #else
 
-ACQ* _acq_init(int lun)
-{
-	int ii;
-	ACQ* acq = createACQ(lun);
+void* get_mapping(ACQ* acq) {
+	return calloc(2, HB_LEN);
+}
 
-	dbg(2, "acq_init STUB seed number init\n");
-	for (ii=0; ii<10; ii+=1){
-		acq->AI[ii]=125*ii;
-	}
-	acq->DI[0] = (-3<<16) | 170;
+ACQ* __acq_init(ACQ* acq)
+{
+	dbg(3, "__acq_init() STUB");
 	return acq;
 }
 void acq_IO(ACQ* acq)
@@ -248,6 +234,24 @@ void cleanup(int sig)
 	if (acq_stack[0]) acq_terminate(acq_stack[0]);
 	if (acq_stack[1]) acq_terminate(acq_stack[1]);
 	exit(1);
+}
+
+ACQ* _acq_init(int lun)
+{
+	ACQ* acq = createACQ(lun);
+
+	acq->VI = acq->AI = get_mapping(acq);
+	acq->DI = (unsigned*)(acq->AI+acq->nai);
+	acq->SPAD = (unsigned*)(acq->AI+acq->nai)+acq->ndi;
+
+	dbg(2, "_acq_init(%d) SPAD %p [0x%x b]", lun,
+				acq->SPAD, (char*)acq->SPAD - (char*)acq->VI);
+
+
+	acq->VO = acq->AO = (short*)((char*)acq->VI+HB_LEN);
+	acq->DO = (unsigned*)(acq->VO+acq->nao);
+
+	return __acq_init(acq);
 }
 
 ACQ* acq_init(int lun)
