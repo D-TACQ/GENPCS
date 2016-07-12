@@ -13,6 +13,9 @@ gofer() {
 gofer init_2106
 gofer start_stream
 
+echo "HIT T to initiate trigger from acq2106_032"
+read trg
+[ "x$trg" = "xT" ] && ./scripts/toggle-hdmi-trigger acq2106_032
 echo run-both hit CR to end
 read enough
 
