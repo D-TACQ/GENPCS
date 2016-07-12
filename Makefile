@@ -1,27 +1,31 @@
 # Makefile for ST40PCS
 
+CFLAGS+=-Wall
+ifdef $(DEBUG)
+CFLAGS+=-g
+endif
+CFLAGS+=-O1
+
 all: acq mod pcs tests
 
 acq:	
 	$(MAKE) cleano
-	$(MAKE) $(DRYRUN) CFLAGS+=-DST40_ACQ acq_sngl acq_dual
+	$(MAKE) $(DRYRUN) CFLAGS="$(CFLAGS) -DST40_ACQ" acq_sngl acq_dual
 
 mod:	
 	make cleano
-	$(MAKE) CFLAGS+=-DST40_MOD $(DRYRUN) mod_sngl mod_dual
+	$(MAKE) $(DRYRUN) CFLAGS="$(CFLAGS) -DST40_MOD" mod_sngl mod_dual
 	
 pcs:	
 	$(MAKE) cleano
-	$(MAKE) CFLAGS+="-DST40_ACQ -DST40_MOD " $(DRYRUN) pcs_sngl pcs_dual
+	$(MAKE) $(DRYRUN) CFLAGS="$(CFLAGS) -DST40_ACQ -DST40_MOD " $pcs_sngl pcs_dual
 
 nul:	
 	$(MAKE) cleano
 	$(MAKE) $(DRYRUN) nul_sngl nul_dual
 
-ifdef $(DEBUG)
-CFLAGS+=-g
-endif
-CFLAGS+=-O1
+
+
 
 # do NOT make these products singly, use top level commands above
 acq_sngl: test_acq_sngl.o ST40PCS_stub.o acq.o linux_rt.o 

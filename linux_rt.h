@@ -12,7 +12,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * TODO 
  * TODO
-/* ------------------------------------------------------------------------- */
+\* ------------------------------------------------------------------------- */
 
 #ifndef TE_LINUX_RT_H_
 #define TE_LINUX_RT_H_
@@ -33,16 +33,7 @@ extern void yield();
 #define pmemcpy memcpy
 #define MEMCPY "memcpy"
 #else
-static void pmemcpy(void *to, void *from, int nbytes)
-{
-	unsigned* tou = (unsigned*)to;
-	unsigned* fromu = (unsigned*)from;
-	int nu = nbytes/4;
-
-	while(nu--){
-		*tou++ = *fromu++;
-	}
-}
+extern void pmemcpy(void *to, void *from, int nbytes);
 #define MEMCPY "pmemcpy"
 #endif
 

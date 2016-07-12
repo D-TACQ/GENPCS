@@ -12,7 +12,7 @@
  *
  * TODO
  * TODO
-/* ------------------------------------------------------------------------- */
+\* ------------------------------------------------------------------------- */
 
 #include "local.h"
 #include "acq.h"
@@ -125,7 +125,7 @@ void acq_IO(ACQ* acq)
 	acq->sample++;
 
 	if (acq->sample < 5 && verbose > 2){
-		printf("verbose > 2 Iter: %d\n");
+		printf("verbose > 2 sample: %d\n", acq->sample);
 		FILE* fd = popen(
 			"hexdump -e '\"VI:%04_ax:\" 16/2 \"%04x \" \"\\n\"'",
 			"w");
@@ -150,7 +150,7 @@ static void stash_stats(ACQ* acq)
 	if (fp == 0){
 		perror(fname);
 	}else{
-		int nw = fwrite(acq->ts, sizeof(struct TS), acq->sample, fp);
+		fwrite(acq->ts, sizeof(struct TS), acq->sample, fp);
 		fclose(fp);
 
 		dbg(1, "stash_stats %s samples %d", fname, acq->sample);
@@ -245,7 +245,7 @@ ACQ* _acq_init(int lun)
 	acq->DI = (unsigned*)(acq->AI+acq->nai);
 	acq->SPAD = (unsigned*)(acq->AI+acq->nai)+acq->ndi;
 
-	dbg(2, "_acq_init(%d) SPAD %p [0x%x b]", lun,
+	dbg(2, "_acq_init(%d) SPAD %p [0x%lx b]", lun,
 				acq->SPAD, (char*)acq->SPAD - (char*)acq->VI);
 
 

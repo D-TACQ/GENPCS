@@ -44,12 +44,12 @@ ST40PCS_Y;
 	union VO_OVERLAY* VO = (union VO_OVERLAY*)ST40PCS_Y.DTACQOUT;
 
 	if (sizeof(ST40PCS_U.DTACQIN) != sizeof(union VI_OVERLAY)){
-		fprintf(stderr, "ERROR: mismatch %s %d != %d\n",
+		fprintf(stderr, "ERROR: mismatch %s %lu != %lu\n",
 				"VI", sizeof(ST40PCS_U.DTACQIN), sizeof(union VI_OVERLAY));
 		return 1;
 	}
 	if (sizeof(ST40PCS_Y.DTACQOUT) != sizeof(union VO_OVERLAY)){
-		fprintf(stderr, "ERROR: mismatch %s %d != %d\n",
+		fprintf(stderr, "ERROR: mismatch %s %lu != %lu\n",
 				"VO", sizeof(ST40PCS_Y.DTACQOUT), sizeof(union VO_OVERLAY));
 		return 1;
 	}
