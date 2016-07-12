@@ -11,7 +11,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * TODO 
  * TODO
-/* ------------------------------------------------------------------------- */
+\* ------------------------------------------------------------------------- */
 
 #ifndef TE_SYSDEF_H_
 #define TE_SYSDEF_H_
