@@ -51,10 +51,10 @@ void _ST40PCS_step(short *AI, short* AO, short* DO)
 	for (ic = 4; ic < 32; ++ic){
 		AO[ic] = 10*iter + ic*500;
 	}
-
 	/* 16 channels DO looped back to 16 channels DI */
 
 	DO[0] = iter<<8 | 		//counter
+		(ST40PCS_U.DTACQIN[0]>0? 1<<2: 0) |	//mod(AI0)
 		(ST40PCS_U.DTACQIN[0]>0? 1<<1: 0) |	//mod(AI0)
 		(iter>>1&1? 1<<0:0);	 		//toggles at SR
 }
