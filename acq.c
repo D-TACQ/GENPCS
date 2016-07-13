@@ -145,7 +145,7 @@ void acq_IO(ACQ* acq)
 static void stash_stats(ACQ* acq)
 {
 	char fname[80];
-	sprintf(fname, "%s.%d.stats", FLAVOUR, acq->lun);
+	sprintf(fname, "LOG/%s.%d.stats", FLAVOUR, acq->lun);
 	FILE* fp = fopen(fname, "w");
 	if (fp == 0){
 		perror(fname);
