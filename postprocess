@@ -1,0 +1,19 @@
+#!/bin/bash
+
+FLAV=${1:-Clyde}
+
+split_stats() {
+	LUN=$1
+	./splitu32 LOG/$FLAV.$LUN.stats 8
+
+	[ $1 -eq 0 ] && NODE=acq2106_032
+	[ $1 -eq 1 ] && NODE=acq2106_033
+
+	./mdsput tepcs $NODE.DI32 LOG/$FLAV.$LUN.stats.0
+	./mdsput tepcs $NODE.STATS.TL   LOG/$FLAV.$LUN.stats.2
+	./mdsput tepcs $NODE.STATS.GTS0 LOG/$FLAV.$LUN.stats.3
+	./mdsput tepcs $NODE.STATS.GTS1 LOG/$FLAV.$LUN.stats.4
+}
+
+split_stats 0
+split_stats 1

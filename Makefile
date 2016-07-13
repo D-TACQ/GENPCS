@@ -6,7 +6,7 @@ CFLAGS+=-g
 endif
 CFLAGS+=-O1
 
-all: acq mod pcs tests
+all: acq mod pcs tests apps
 
 acq:	
 	$(MAKE) cleano
@@ -24,7 +24,7 @@ nul:
 	$(MAKE) cleano
 	$(MAKE) $(DRYRUN) nul_sngl nul_dual
 
-
+apps: mdsput splitu32 LOG
 
 
 # do NOT make these products singly, use top level commands above
@@ -71,6 +71,16 @@ test_mod_dual.o: test_dual.c
 
 acq_stub.o: acq.c	
 	$(CC) $(CFLAGS) -c -o $@ $^
+
+CXXFLAGS+= -I/usr/local/mdsplus/include -g
+mdsput:	 mdsput.o 
+	$(CXX) $(CFLAGS) -o mdsput mdsput.o \
+	-L/usr/local/mdsplus/lib/ -lMdsObjectsCppShr
+
+mdsput.o : mdsput.cpp
+
+LOG:
+	mkdir -p LOG
 
 # cleano : remove conditional compile object (for clean ident)
 cleano: FORCE 
