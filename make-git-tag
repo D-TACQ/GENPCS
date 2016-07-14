@@ -1,0 +1,5 @@
+REL=R$(date +%y%m%d%H%M)
+git tag -a $REL
+git push github $REL
+git push eigg $REL
+
