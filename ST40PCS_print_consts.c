@@ -85,4 +85,5 @@ int main()
 	PRINTLU(MSI_PCS2_AO);
 	PRINTLU(MSI_PCS1_DO);
 	PRINTLU(MSI_PCS2_DO);
+	return 0;
 }
