@@ -17,7 +17,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
  *  GNU General Public License for more details.                             *
  *                                                                           *
-/* ------------------------------------------------------------------------- */
+\* ------------------------------------------------------------------------- */
 
 #include "local.h"
 #include "linux_rt.h"
@@ -33,7 +33,8 @@
 
 #include "ST40PCS_if.h"
 
-#define PRINT(value) printf("%20s: %d\n", #value, value)
+#define PRINTLU(value) printf("%20s: %lu\n", #value, value)
+#define PRINTI(value) printf("%20s: %d\n", #value, value)
 
 int main()
 {
@@ -41,47 +42,47 @@ int main()
 	union VO_OVERLAY VO;
 
 	printf("VI structure sizes in bytes\n");
-	PRINT(sizeof VI.DTACQIN);
-	PRINT(sizeof VI.ACQ);
+	PRINTLU(sizeof VI.DTACQIN);
+	PRINTLU(sizeof VI.ACQ);
 
 	printf("total interface size shorts\n");
-	PRINT(VI_SHORTS);
+	PRINTI(VI_SHORTS);
 	printf("AI count (shorts)\n");
-	PRINT(MAX_AI_PER_BOX);
+	PRINTI(MAX_AI_PER_BOX);
 	printf("DI, STA count (u32)\n");
-	PRINT(MAX_DI_PER_BOX);
-	PRINT(STATUS_LEN);
+	PRINTI(MAX_DI_PER_BOX);
+	PRINTI(STATUS_LEN);
 
 	printf("Index in DTACQIN (shorts)\n");
-	PRINT( MSI_AI);
-	PRINT( MSI_DI);
-	PRINT( MSI_ST);
+	PRINTLU( MSI_AI);
+	PRINTLU( MSI_DI);
+	PRINTLU( MSI_ST);
 
 /* index to the actual box should it be needed (eg for STA) */
-	PRINT( MSI_PCS1_AI);
-	PRINT( MSI_PCS2_AI);
+	PRINTLU( MSI_PCS1_AI);
+	PRINTLU( MSI_PCS2_AI);
 
-	PRINT( MSI_PCS1_DI);
-	PRINT( MSI_PCS2_DI);
+	PRINTLU( MSI_PCS1_DI);
+	PRINTLU( MSI_PCS2_DI);
 
-	PRINT( MSI_PCS1_ST);
-	PRINT( MSI_PCS2_ST);
+	PRINTLU( MSI_PCS1_ST);
+	PRINTLU( MSI_PCS2_ST);
 
 	printf("\nVO structure sizes in bytes\n");
-	PRINT(sizeof VO.DTACQOUT);
-	PRINT(sizeof VO.ACQ);
+	PRINTLU(sizeof VO.DTACQOUT);
+	PRINTLU(sizeof VO.ACQ);
 
 	printf("total interface size shorts\n");
-	PRINT(VO_SHORTS);
+	PRINTI(VO_SHORTS);
 	printf("AO count (shorts)\n");
-	PRINT(MAX_AO_PER_BOX);
+	PRINTI(MAX_AO_PER_BOX);
 	printf("DO count (u32)\n");
-	PRINT(MAX_DO_PER_BOX);
+	PRINTI(MAX_DO_PER_BOX);
 	printf("Index in DTACQOUT (shorts)\n");
-	PRINT(MSI_AO);
-	PRINT(MSI_DO);
-	PRINT(MSI_PCS1_AO);
-	PRINT(MSI_PCS2_AO);
-	PRINT(MSI_PCS1_DO);
-	PRINT(MSI_PCS2_DO);
+	PRINTLU(MSI_AO);
+	PRINTLU(MSI_DO);
+	PRINTLU(MSI_PCS1_AO);
+	PRINTLU(MSI_PCS2_AO);
+	PRINTLU(MSI_PCS1_DO);
+	PRINTLU(MSI_PCS2_DO);
 }
