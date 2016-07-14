@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ newshot tepcs;getshot tepcs
+
 export LLC_TRG=ext LLC_CLK=ext
 export UUTS="acq2106_032 acq2106_033"
 
