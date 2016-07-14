@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+# http://www.breakage.org/2013/11/15/nohz_fullgodmode/
+
+echo 1 > /sys/bus/workqueue/devices/writeback/cpumask
+for i in `pgrep rcu` ; do taskset -pc 0 $i ; done
+
+echo 0 > /sys/bus/workqueue/devices/writeback/numa
+

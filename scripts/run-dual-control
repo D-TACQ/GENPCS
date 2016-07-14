@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+RTPRIO=10 AFFINITY=0x2 G_YIELD=0 VERBOSE=1 ./acq_dual 100000000
+./postprocess
+
