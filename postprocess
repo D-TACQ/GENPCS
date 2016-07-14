@@ -8,11 +8,17 @@ split_stats() {
 
 	[ $1 -eq 0 ] && NODE=acq2106_032
 	[ $1 -eq 1 ] && NODE=acq2106_033
+	
+	(cd LOG; ln -sf $FLAV.$LUN.stats.0 $FLAV.$LUN.stats.DI32)
+	(cd LOG; ln -sf $FLAV.$LUN.stats.1 $FLAV.$LUN.stats.TL)
+	(cd LOG; ln -sf $FLAV.$LUN.stats.3 $FLAV.$LUN.stats.GTS0)
+	(cd LOG; ln -sf $FLAV.$LUN.stats.4 $FLAV.$LUN.stats.GTS1)
+	(cd LOG; ln -sf $FLAV.$LUN.stats.5 $FLAV.$LUN.stats.PC)
 
-	./mdsput tepcs $NODE.DI32 LOG/$FLAV.$LUN.stats.0
-	./mdsput tepcs $NODE.STATS.TL   LOG/$FLAV.$LUN.stats.2
-	./mdsput tepcs $NODE.STATS.GTS0 LOG/$FLAV.$LUN.stats.3
-	./mdsput tepcs $NODE.STATS.GTS1 LOG/$FLAV.$LUN.stats.4
+	./mdsput tepcs $NODE.DI32 LOG/$FLAV.$LUN.stats.DI32
+	./mdsput tepcs $NODE.STATS.TL   LOG/$FLAV.$LUN.stats.TL
+	./mdsput tepcs $NODE.STATS.GTS0 LOG/$FLAV.$LUN.stats.GTS0
+	./mdsput tepcs $NODE.STATS.GTS1 LOG/$FLAV.$LUN.stats.PC
 }
 
 split_stats 0
