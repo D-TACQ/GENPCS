@@ -33,6 +33,10 @@ static ACQ* createACQ(int lun);
 
 #define HB_LEN	0x1000
 
+#define DECIMATE 1
+int decimate;
+
+
 #ifdef ST40_ACQ
 #include <errno.h>
 #include <fcntl.h>
@@ -49,6 +53,7 @@ static ACQ* createACQ(int lun);
 
 
 extern int errno;
+
 
 
 
@@ -107,7 +112,7 @@ void acq_IO(ACQ* acq)
 
 	ts->gts_before = get_gt_usec(0);
 
-	for (; (tl1 = *acq->SPAD) == tl0; ++pollcat){
+	for (; (tl1 = *acq->SPAD) - tl0 < decimate; ++pollcat){
 		yield();
 		if (acq->sample && pollcat > 100000 && get_gt_usec(0) > ts->gts_before + 100000){
 			snprintf(sigint_message, 128,
@@ -209,6 +214,7 @@ ACQ* createACQ(int lun)
 	acq->ndi = lun==0? GETENVINT(LUN0_DI): GETENVINT(LUN1_DI);
 	acq->nao = lun==0? GETENVINT(LUN0_AO): GETENVINT(LUN1_AO);
 	acq->ndo = lun==0? GETENVINT(LUN0_DO): GETENVINT(LUN1_DO);
+	decimate = GETENVINT(DECIMATE);
 
 	xi_len = (acq->nai)*sizeof(short) + (acq->ndi)*sizeof(unsigned);
 	acq->vi_len = roundup(xi_len + MINSPAD, DMA_SEG_SIZE);
