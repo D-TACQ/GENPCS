@@ -93,8 +93,9 @@ union VI_OVERLAY {
 union VO_OVERLAY {
 	int16_T DTACQOUT[VO_SHORTS];	// Simulink uses this
 	struct VO_ACQ {
-		short AO0[MAX_AO_PER_BOX];
+		short AO0[0];		     // NO AO in BOX1
 		short AO1[MAX_AO_PER_BOX];
+		short AO2[MAX_AO_PER_BOX];   // expansion possible in BOX2
 		u32 DO0[MAX_DO_PER_BOX];
 		u32 DO1[MAX_DO_PER_BOX];
 	} ACQ;
