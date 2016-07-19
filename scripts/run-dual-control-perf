@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+export RTPRIO=10 AFFINITY=0x2 G_YIELD=0 VERBOSE=1 
+perf stat -C 1 -e irq_vectors:local_timer_entry taskset -c 1 timeout 10 ./acq_dual 100000
+./postprocess
+

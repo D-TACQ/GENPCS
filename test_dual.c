@@ -44,12 +44,12 @@ ST40PCS_Y;
 	union VO_OVERLAY* VO = (union VO_OVERLAY*)ST40PCS_Y.DTACQOUT;
 
 	if (sizeof(ST40PCS_U.DTACQIN) != sizeof(union VI_OVERLAY)){
-		fprintf(stderr, "ERROR: mismatch %s %d != %d\n",
+		fprintf(stderr, "ERROR: mismatch %s %lu != %lu\n",
 				"VI", sizeof(ST40PCS_U.DTACQIN), sizeof(union VI_OVERLAY));
 		return 1;
 	}
 	if (sizeof(ST40PCS_Y.DTACQOUT) != sizeof(union VO_OVERLAY)){
-		fprintf(stderr, "ERROR: mismatch %s %d != %d\n",
+		fprintf(stderr, "ERROR: mismatch %s %lu != %lu\n",
 				"VO", sizeof(ST40PCS_Y.DTACQOUT), sizeof(union VO_OVERLAY));
 		return 1;
 	}
@@ -64,10 +64,10 @@ ST40PCS_Y;
 	goRealTime();
 
 	for (sample = 0; sample < N_iter; ++sample){
-		pmemcpy(acq0->AO, VO->ACQ.AO0+MSI_PCS1_AO, LUN0_AO*SS);
-		pmemcpy(acq0->DO, VO->ACQ.DO0+MSI_PCS1_DO, LUN0_DO*US);
-		pmemcpy(acq1->AO, VO->ACQ.AO0+MSI_PCS2_AO, LUN1_AO*SS);
-		pmemcpy(acq1->DO, VO->ACQ.DO1+MSI_PCS2_DO, LUN1_DO*US);
+		pmemcpy(acq0->AO, VO->ACQ.AO0, LUN0_AO*SS);
+		pmemcpy(acq0->DO, VO->ACQ.DO0, LUN0_DO*US);
+		pmemcpy(acq1->AO, VO->ACQ.AO1, LUN1_AO*SS);
+		pmemcpy(acq1->DO, VO->ACQ.DO1, LUN1_DO*US);
 
 		acq_IO(acq0);	/* blocks */
 		acq_IO(acq1);	/* should come right back.. */

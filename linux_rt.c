@@ -12,7 +12,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * TODO
  * TODO
-/* ------------------------------------------------------------------------- */
+\* ------------------------------------------------------------------------- */
 
 #define _GNU_SOURCE             /* See feature_test_macros(7) */
 
@@ -126,3 +126,16 @@ void linux_rt_init(int argc, char* argv[])
 {
 	ui(argc, argv);
 }
+
+#ifndef __USE_MEMCPY__
+void pmemcpy(void *to, void *from, int nbytes)
+{
+	unsigned* tou = (unsigned*)to;
+	unsigned* fromu = (unsigned*)from;
+	int nu = nbytes/4;
+
+	while(nu--){
+		*tou++ = *fromu++;
+	}
+}
+#endif

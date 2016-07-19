@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+APP=${1:-./acq_dual}
+RTPRIO=10 AFFINITY=0x2 G_YIELD=0 VERBOSE=1 $APP 100000000
+./postprocess
+

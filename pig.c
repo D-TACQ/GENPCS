@@ -12,7 +12,7 @@
  *  it under the terms of Version 2 of the GNU General Public License        *
  *  as published by the Free Software Foundation;                            *
  *                                                                           *
-/* ------------------------------------------------------------------------- */
+\* ------------------------------------------------------------------------- */
 
 #include "local.h"
 #include "linux_rt.h"

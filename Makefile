@@ -1,27 +1,31 @@
 # Makefile for ST40PCS
 
-all: acq mod pcs tests
+CFLAGS+=-Wall
+ifdef $(DEBUG)
+CFLAGS+=-g
+endif
+CFLAGS+=-O1
+
+all: acq mod pcs tests apps
 
 acq:	
 	$(MAKE) cleano
-	$(MAKE) $(DRYRUN) CFLAGS+=-DST40_ACQ acq_sngl acq_dual
+	$(MAKE) $(DRYRUN) CFLAGS="$(CFLAGS) -DST40_ACQ" acq_sngl acq_dual
 
 mod:	
 	make cleano
-	$(MAKE) CFLAGS+=-DST40_MOD $(DRYRUN) mod_sngl mod_dual
+	$(MAKE) $(DRYRUN) CFLAGS="$(CFLAGS) -DST40_MOD" mod_sngl mod_dual
 	
 pcs:	
 	$(MAKE) cleano
-	$(MAKE) CFLAGS+="-DST40_ACQ -DST40_MOD " $(DRYRUN) pcs_sngl pcs_dual
+	$(MAKE) $(DRYRUN) CFLAGS="$(CFLAGS) -DST40_ACQ -DST40_MOD " $pcs_sngl pcs_dual
 
 nul:	
 	$(MAKE) cleano
 	$(MAKE) $(DRYRUN) nul_sngl nul_dual
 
-ifdef $(DEBUG)
-CFLAGS+=-g
-endif
-CFLAGS+=-O1
+apps: mdsput splitu32 LOG
+
 
 # do NOT make these products singly, use top level commands above
 acq_sngl: test_acq_sngl.o ST40PCS_stub.o acq.o linux_rt.o 
@@ -67,6 +71,16 @@ test_mod_dual.o: test_dual.c
 
 acq_stub.o: acq.c	
 	$(CC) $(CFLAGS) -c -o $@ $^
+
+CXXFLAGS+= -I/usr/local/mdsplus/include -g
+mdsput:	 mdsput.o 
+	$(CXX) $(CFLAGS) -o mdsput mdsput.o \
+	-L/usr/local/mdsplus/lib/ -lMdsObjectsCppShr
+
+mdsput.o : mdsput.cpp
+
+LOG:
+	mkdir -p LOG
 
 # cleano : remove conditional compile object (for clean ident)
 cleano: FORCE 

@@ -39,7 +39,7 @@ void ST40PCS_initialize(void)
 
 static int iter;
 
-void _ST40PCS_step(short *AI, short* AO, short* DO)
+void _ST40PCS_step(short *AI, short* AO, short* DO, unsigned id)
 {
 	int ic;
 	AO[0] = AI[0];
@@ -51,11 +51,12 @@ void _ST40PCS_step(short *AI, short* AO, short* DO)
 	for (ic = 4; ic < 32; ++ic){
 		AO[ic] = 10*iter + ic*500;
 	}
-
 	/* 16 channels DO looped back to 16 channels DI */
 
 	DO[0] = iter<<8 | 		//counter
-		(ST40PCS_U.DTACQIN[0]>0? 1<<1: 0) |	//mod(AI0)
+		(iter>>2&1? id : 0)|
+		(AI[0]>0? 1<<2: 0) |	//mod(AI0)
+		(AI[0]>0? 1<<1: 0) |	//mod(AI0)
 		(iter>>1&1? 1<<0:0);	 		//toggles at SR
 }
 /** fake "feedback algorithm"
@@ -67,12 +68,12 @@ void ST40PCS_step(void)
 	_ST40PCS_step(
 		ST40PCS_U.DTACQIN  + MSI_PCS1_AI,
 		ST40PCS_Y.DTACQOUT + MSI_PCS1_AO,
-		ST40PCS_Y.DTACQOUT + MSI_PCS1_DO);
+		ST40PCS_Y.DTACQOUT + MSI_PCS1_DO, 0xa0);
 
 	_ST40PCS_step(
-		ST40PCS_U.DTACQIN  + MSI_PCS1_AI,   /* !! using AI1 to save cables */
+		ST40PCS_U.DTACQIN  + MSI_PCS1_AI,  	/* pick up AI01 */ 
 		ST40PCS_Y.DTACQOUT + MSI_PCS2_AO,
-		ST40PCS_Y.DTACQOUT + MSI_PCS2_DO);
+		ST40PCS_Y.DTACQOUT + MSI_PCS2_DO+1, 0xb0); /* force hi word */
 
 	++iter;
 }
