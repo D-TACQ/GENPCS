@@ -110,7 +110,7 @@ void acq_IO(ACQ* acq)
 	int pollcat = 0;
 	struct TS *ts = &acq->ts[acq->sample];
 
-	acq->lbuf_status[1] = ts->gts_before = get_gt_usec(0);
+	ts->gts_before = get_gt_usec(0);
 
 	for (; (tl1 = *acq->SPAD) - tl0 < decimate; ++pollcat){
 		yield();
@@ -122,6 +122,7 @@ void acq_IO(ACQ* acq)
 		}
 	}
 	pmemcpy(acq->lbuf, acq->VI, acq->vi_len);
+	acq->lbuf_status[1] = ts->gts_before;
 	acq->lbuf_status[2] = ts->gts_after = get_gt_usec(acq->sample == 0);
 	acq->lbuf_status[3] = ts->pollcat = pollcat;
 	acq->lbuf_status[0] = ts->tl = acq->sample_count = tl1;
