@@ -110,7 +110,7 @@ void acq_IO(ACQ* acq)
 	int pollcat = 0;
 	struct TS *ts = &acq->ts[acq->sample];
 
-	ts->gts_before = get_gt_usec(0);
+	acq->lbuf_status[1] = ts->gts_before = get_gt_usec(0);
 
 	for (; (tl1 = *acq->SPAD) - tl0 < decimate; ++pollcat){
 		yield();
@@ -122,11 +122,10 @@ void acq_IO(ACQ* acq)
 		}
 	}
 	pmemcpy(acq->lbuf, acq->VI, acq->vi_len);
-	ts->gts_after = get_gt_usec(acq->sample == 0);
-	ts->pollcat = pollcat;
-	ts->tl = acq->sample_count = tl1;
+	acq->lbuf_status[2] = ts->gts_after = get_gt_usec(acq->sample == 0);
+	acq->lbuf_status[3] = ts->pollcat = pollcat;
+	acq->lbuf_status[0] = ts->tl = acq->sample_count = tl1;
 	ts->DI = * (unsigned*)(acq->lbuf + acq->nai);
-	*acq->ts_lbuf = *ts;
 
 	acq->sample++;
 
@@ -227,7 +226,7 @@ ACQ* createACQ(int lun)
 	acq->vo_len = roundup(xo_len, DMA_SEG_SIZE);
 
 	acq->lbuf = calloc(acq->vi_len, 1);
-	acq->ts_lbuf = (struct TS*)(acq->lbuf + (lun==0? ASI_LUN0_ST: ASI_LUN1_ST));
+	acq->lbuf_status = (unsigned*)(acq->lbuf + (lun==0? ASI_LUN0_ST: ASI_LUN1_ST));
 	acq->ts = calloc(N_iter, sizeof(struct TS));
 	return acq;
 }

@@ -49,7 +49,7 @@ typedef struct ACQ {
 
 	short* lbuf;			// local bounce buffer
 	struct TS* ts;		// internal monitoring
-	struct TS* ts_lbuf;	// stats, stored for copy to MODEL.
+	unsigned* lbuf_status;	// stats, stored for copy to MODEL.
 } ACQ;
 
 ACQ* acq_init(int lun);
