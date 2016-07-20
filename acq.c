@@ -126,6 +126,7 @@ void acq_IO(ACQ* acq)
 	ts->pollcat = pollcat;
 	ts->tl = acq->sample_count = tl1;
 	ts->DI = * (unsigned*)(acq->lbuf + acq->nai);
+	*acq->ts_lbuf = *ts;
 
 	acq->sample++;
 
@@ -226,6 +227,7 @@ ACQ* createACQ(int lun)
 	acq->vo_len = roundup(xo_len, DMA_SEG_SIZE);
 
 	acq->lbuf = calloc(acq->vi_len, 1);
+	acq->ts_lbuf = (struct TS*)(acq->lbuf + (lun==0? ASI_LUN0_ST: ASI_LUN1_ST));
 	acq->ts = calloc(N_iter, sizeof(struct TS));
 	return acq;
 }
