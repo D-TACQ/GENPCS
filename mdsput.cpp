@@ -8,6 +8,8 @@ using namespace MDSplus;
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <string.h>
+
 /* usage mdsput tree node [fname] */
 
 int fileLen(const char* fname)
@@ -19,15 +21,24 @@ int fileLen(const char* fname)
 		return 0;
 	}
 }
+
+class MdsPutter {
+public:
+	virtual int store (const char* fname, const char* treename, const char* nodename) = 0;
+
+	static MdsPutter* create(const char* dtype);
+};
+
 template <class T, class M> 
-class MdsPutThing {
+class MdsPutThing: public MdsPutter {
 	T* mydata;
 	int lenw;
-public:
+protected:
 	MdsPutThing() : mydata(0) {}
 	virtual ~MdsPutThing() {
 		if (mydata) delete [] mydata;
 	}
+	friend class MdsPutter;
 private:	
 	void getData(const char* fname) {
 		FILE* fp = fopen(fname, "r");
@@ -47,11 +58,9 @@ private:
 		}
 	}
 public:
-	MdsPutThing(const char* fname) {
-		getData(fname);
-	}
 
-	int operator() (const char* treename, const char* nodename) {
+	int store (const char* fname, const char* treename, const char* nodename) {
+		getData(fname);
 		Tree *tree = new Tree(treename, 0);
 		TreeNode *node = tree->getNode(nodename);
 		Array *array = new M(mydata, lenw);
@@ -60,13 +69,26 @@ public:
 	}
 };
 
+MdsPutter * MdsPutter::create(const char* dtype)
+{
+	if (strcmp(dtype, "s16") == 0){
+		return new MdsPutThing<short, Int16Array>();
+	}
+	/* could be many more .. */
 
+	return new MdsPutThing<unsigned, Uint32Array>();
+}
 int main(int argc, char* argv[])
 {
 	if (argc < 4){
-		fprintf(stderr, "USAGE: mdsput tree node [fname]\n");
+		fprintf(stderr, "USAGE: mdsput tree node [fname] [dtype]\n");
 	}else{
-		MdsPutThing<unsigned, Uint32Array> mds(argv[3]);
-		return mds(argv[1], argv[2]);
+		const char* tree = argv[1];
+		const char* node = argv[2];
+		const char* fname = argv[3];
+		const char* dtype = argc>4? argv[4]: "u32";
+
+		MdsPutter * putter = MdsPutter::create(dtype);
+		return putter->store(fname, tree, node);
 	}
 }
