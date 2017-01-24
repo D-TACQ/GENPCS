@@ -160,9 +160,6 @@ void acq_IO(ACQ* acq)
 	}
 	acq->sample++;
 
-	/* test matchup from acq_IO to DI log */
-	ts->DI = acq->sample;
-
 	/* and some random debug tracing */
 	if (acq->sample < 5 && verbose > 2){
 		printf("verbose > 2 sample: %d\n", acq->sample);
