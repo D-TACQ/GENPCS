@@ -64,14 +64,18 @@ ST40PCS_Y;
 	goRealTime();
 
 	for (sample = 0; sample < N_iter; ++sample){
+		/* scatter XO from model to hardware */
 		pmemcpy(acq0->AO, VO->ACQ.AO0, LUN0_AO*SS);
 		pmemcpy(acq0->DO, VO->ACQ.DO0, LUN0_DO*US);
 		pmemcpy(acq1->AO, VO->ACQ.AO1, LUN1_AO*SS);
 		pmemcpy(acq1->DO, VO->ACQ.DO1, LUN1_DO*US);
+		log_XO(acq0);
+		log_XO(acq1);
 
 		acq_IO(acq0);	/* blocks */
 		acq_IO(acq1);	/* should come right back.. */
 
+		/* gather XI from hardware to model */
 		memcpy(VI->ACQ.AI0, acq0->lbuf+ASI_LUN0_AI, LUN0_AI*SS);
 		memcpy(VI->ACQ.DI0, acq0->lbuf+ASI_LUN0_DI, LUN0_DI*US);
 		memcpy(VI->ACQ.ST0, acq0->lbuf+ASI_LUN0_ST, LUN0_ST*US);

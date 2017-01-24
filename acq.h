@@ -48,15 +48,19 @@ typedef struct ACQ {
 	unsigned pao;
 
 	short* lbuf;		// local bounce buffer
-	struct TS* ts;		// internal monitoring
+	struct TS* ts;		// internal monitoring, for file store
+	short *AO_log;		// log AO's for future store to file
+	unsigned *DO_log;	// log DO's for future store to file
 	unsigned* lbuf_status;	// stats, stored for copy to MODEL.
 } ACQ;
 
 ACQ* acq_init(int lun);
 void acq_IO(ACQ* acq);			/* blocks until next sample */
+void log_XO(ACQ* acq);			/* stash current sample XO */
 void acq_terminate(ACQ* acq);
 
 #define SS	sizeof(short)
 #define US	sizeof(unsigned)
+
 
 #endif /* TE_ACQ_H_ */

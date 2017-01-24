@@ -1,25 +1,61 @@
 #!/bin/bash
 
 FLAV=${1:-Clyde}
+TREE=tepcs
 
-split_stats() {
-	LUN=$1
-	./splitu32 LOG/$FLAV.$LUN.stats 8
+stash_stats() {
+	lun=$1
+	node = $2
+	froot = $3
+	./splitu32 $froot.stats 8
 
-	[ $1 -eq 0 ] && NODE=acq2106_032
-	[ $1 -eq 1 ] && NODE=acq2106_033
 	
-	(cd LOG; ln -sf $FLAV.$LUN.stats.0 $FLAV.$LUN.stats.DI32)
-	(cd LOG; ln -sf $FLAV.$LUN.stats.1 $FLAV.$LUN.stats.TL)
-	(cd LOG; ln -sf $FLAV.$LUN.stats.3 $FLAV.$LUN.stats.GTS0)
-	(cd LOG; ln -sf $FLAV.$LUN.stats.4 $FLAV.$LUN.stats.GTS1)
-	(cd LOG; ln -sf $FLAV.$LUN.stats.5 $FLAV.$LUN.stats.PC)
+	(cd LOG; ln -sf $FLAV.$lun.stats.0 $FLAV.$lun.stats.DI32)
+	(cd LOG; ln -sf $FLAV.$lun.stats.1 $FLAV.$lun.stats.TL)
+	(cd LOG; ln -sf $FLAV.$lun.stats.3 $FLAV.$lun.stats.GTS0)
+	(cd LOG; ln -sf $FLAV.$lun.stats.4 $FLAV.$lun.stats.GTS1)
+	(cd LOG; ln -sf $FLAV.$lun.stats.5 $FLAV.$lun.stats.PC)
 
-	./mdsput tepcs $NODE.DI32 LOG/$FLAV.$LUN.stats.DI32
-	./mdsput tepcs $NODE.STATS.TL   LOG/$FLAV.$LUN.stats.TL
-	./mdsput tepcs $NODE.STATS.GTS0 LOG/$FLAV.$LUN.stats.GTS0
-	./mdsput tepcs $NODE.STATS.GTS1 LOG/$FLAV.$LUN.stats.PC
+	./mdsput $TREE $node.DI32 LOG/$FLAV.$lun.stats.DI32
+	./mdsput $TREE $node.STATS.TL   LOG/$FLAV.$lun.stats.TL
+	./mdsput $TREE $node.STATS.GTS0 LOG/$FLAV.$lun.stats.GTS0
+	./mdsput $TREE $node.STATS.GTS1 LOG/$FLAV.$lun.stats.PC
 }
 
-split_stats 0
-split_stats 1
+stash_AO() {
+	lun=$1
+	node = $2
+	froot = $3
+	
+	for ch_file in $froot.AO.???; do
+		ch=${ch_file##*.}
+		echo ./mdsput $TREE $NODE.AO.$ch $ch_file s16
+		./mdsput $TREE $NODE.AO.$ch $ch_file s16
+	done
+}
+
+stash_DO() {
+	lun=$1
+	node = $2
+	froot = $3
+	if [ -e $froot.DO ]; then
+		echo ./mdsput $TREE $NODE.DO32 $froot.DO
+		./mdsput $TREE $NODE.DO32 $froot.DO
+	fi
+}
+
+stash_all() {
+	case $1 in
+	0) node=acq2106_032;;
+	1) node=acq2106_033;;
+	*) echo BAD UUT; exit;;
+	froot=LOG/$FLAV.$1	
+	
+	stash_stats $1 $node $froot
+	stash_AO $1 $node $froot
+	stash_DO $1 $node $froot
+}
+
+stash_all 0
+stash_all 1
+

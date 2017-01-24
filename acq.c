@@ -54,7 +54,8 @@ int decimate;
 
 extern int errno;
 
-
+#define AO_SZ(acq) ((acq)->nao * sizeof(short))
+#define DO_SZ(acq) ((acq)->ndo * sizeof(unsigned))
 
 
 void* get_mapping(ACQ* acq) {
@@ -101,6 +102,28 @@ ACQ* __acq_init(ACQ* acq)
 
 	acq->pao = xllc_def.pa;
 	return acq;
+}
+
+static void _log_DO(ACQ* acq)
+{
+	int do_sz = DO_SZ(acq);
+	if (do_sz){
+		unsigned* do_cursor = acq->DO_log + acq->sample*do_sz;
+		memcpy(do_cursor, acq->DO, do_sz);
+	}
+}
+static void _log_AO(ACQ* acq)
+{
+	int ao_sz = AO_SZ(acq);
+	if (ao_sz){
+		short* ao_cursor = acq->AO_log + acq->sample*ao_sz;
+		memcpy(ao_cursor, acq->AO, ao_sz);
+	}
+}
+void log_XO(ACQ* acq)
+{
+	_log_AO(acq);
+	_log_DO(acq);
 }
 
 void acq_IO(ACQ* acq)
@@ -155,23 +178,89 @@ void acq_IO(ACQ* acq)
 
 }
 
+
 static void stash_stats(ACQ* acq)
 {
 	char fname[80];
+	FILE* fp;
+
 	sprintf(fname, "LOG/%s.%d.stats", FLAVOUR, acq->lun);
-	FILE* fp = fopen(fname, "w");
+	fp = fopen(fname, "w");
 	if (fp == 0){
 		perror(fname);
 	}else{
 		fwrite(acq->ts, sizeof(struct TS), acq->sample, fp);
 		fclose(fp);
 
-		dbg(1, "stash_stats %s samples %d", fname, acq->sample);
+		dbg(1, "stash_stats() %s samples %d", fname, acq->sample);
 	}
 }
+
+static void stash_DO(ACQ* acq)
+/* stores DO as a column of u32. BUG: what if more than one DO? */
+{
+	char fname[80];
+	FILE* fp;
+
+	if (DO_SZ(acq) == 0) return;
+
+	sprintf(fname, "LOG/%s.%d.DO", FLAVOUR, acq->lun);
+	fp = fopen(fname, "w");
+	if (fp == 0){
+		perror(fname);
+	}else{
+		fwrite(acq->DO_log, DO_SZ(acq), acq->sample, fp);
+		fclose(fp);
+
+		dbg(1, "stash_DO() %s samples %d", fname, acq->sample);
+	}
+	free(acq->DO_log);
+}
+
+static void _stash_AO(ACQ *acq)
+/* stores binary file per channel */
+{
+	char fname[80];
+	FILE** fp = calloc(acq->nao, sizeof(FILE*));
+	int ic;
+	int isam;
+	short *cursor = acq->AO_log;
+
+	for (ic = 0; ic < acq->nao; ++ic){
+		sprintf(fname, "LOG/%s.%d.AO.%03d", FLAVOUR, acq->lun, ic);
+		fp[ic] = fopen(fname, "w");
+		if (fp[ic] == 0){
+			perror(fname);
+			exit(1);
+		}
+	}
+
+	for (isam = 0; isam < acq->sample; ++isam){
+		for (ic = 0; ic < acq->nao; ++ic){
+			/* fwrite() is buffered, so not quite as inefficient
+			 * as it looks..
+			 */
+			fwrite(cursor++, sizeof(short), 1, fp[ic]);
+		}
+	}
+	for (ic = 0; ic < acq->nao; ++ic){
+		fclose(fp[ic]);
+	}
+	free(fp);
+	free(acq->AO_log);
+}
+static void stash_AO(ACQ *acq)
+{
+	if (AO_SZ(acq) == 0) return
+
+	_stash_AO(acq);
+}
+
 void acq_terminate(ACQ* acq)
 {
 	stash_stats(acq);
+	stash_AO(acq);
+	stash_DO(acq);
 	munmap(acq->VI, HB_LEN);
 	close(acq->fd);
 }
@@ -236,6 +325,12 @@ ACQ* createACQ(int lun)
 	acq->lbuf = calloc(acq->vi_len, 1);
 	acq->lbuf_status = (unsigned*)(acq->lbuf + (lun==0? ASI_LUN0_ST: ASI_LUN1_ST));
 	acq->ts = calloc(N_iter, sizeof(struct TS));
+	if (AO_SZ(acq)){
+		acq->AO_log = calloc(N_iter, AO_SZ(acq));
+	}
+	if (DO_SZ(acq)){
+		acq->DO_log = calloc(N_iter, DO_SZ(acq));
+	}
 	return acq;
 }
 
