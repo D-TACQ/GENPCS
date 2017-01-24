@@ -135,6 +135,7 @@ void acq_IO(ACQ* acq)
 
 	ts->gts_before = get_gt_usec(0);
 
+	/* POLL for data */
 	for (; (tl1 = *acq->SPAD) - tl0 < decimate; ++pollcat){
 		yield();
 		if (acq->sample && pollcat > 100000 && get_gt_usec(0) > ts->gts_before + 100000){
@@ -144,7 +145,10 @@ void acq_IO(ACQ* acq)
 			raise(SIGINT);
 		}
 	}
+	/* We have new data: copy VI for transfer to MODEL */
 	pmemcpy(acq->lbuf, acq->VI, acq->vi_len);
+
+	/* stash stats for LOG */
 	acq->lbuf_status[1] = ts->gts_before;
 	acq->lbuf_status[2] = ts->gts_after = get_gt_usec(acq->sample == 0);
 	acq->lbuf_status[3] = ts->pollcat = pollcat;
@@ -154,12 +158,12 @@ void acq_IO(ACQ* acq)
 		printf("test matchup is DI in the right place?\n");
 		printf("%p + %d => 0x%08x\n", acq->lbuf, acq->nai, ts->DI);
 	}
-
 	acq->sample++;
 
 	/* test matchup from acq_IO to DI log */
 	ts->DI = acq->sample;
 
+	/* and some random debug tracing */
 	if (acq->sample < 5 && verbose > 2){
 		printf("verbose > 2 sample: %d\n", acq->sample);
 		FILE* fd = popen(
@@ -175,7 +179,6 @@ void acq_IO(ACQ* acq)
 			pclose(fd);
 		}
 	}
-
 }
 
 
