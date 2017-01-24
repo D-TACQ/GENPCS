@@ -47,7 +47,7 @@ typedef struct ACQ {
 	unsigned pai;
 	unsigned pao;
 
-	short* lbuf;			// local bounce buffer
+	short* lbuf;		// local bounce buffer
 	struct TS* ts;		// internal monitoring
 	unsigned* lbuf_status;	// stats, stored for copy to MODEL.
 } ACQ;

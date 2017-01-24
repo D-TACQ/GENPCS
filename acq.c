@@ -127,8 +127,15 @@ void acq_IO(ACQ* acq)
 	acq->lbuf_status[3] = ts->pollcat = pollcat;
 	acq->lbuf_status[0] = ts->tl = acq->sample_count = tl1;
 	ts->DI = * (unsigned*)(acq->lbuf + acq->nai);
+	if (acq->sample < 4){
+		printf("test matchup is DI in the right place?\n");
+		printf("%p + %d => 0x%08x\n", acq->lbuf, acq->nai, ts->DI);
+	}
 
 	acq->sample++;
+
+	/* test matchup from acq_IO to DI log */
+	ts->DI = acq->sample;
 
 	if (acq->sample < 5 && verbose > 2){
 		printf("verbose > 2 sample: %d\n", acq->sample);
