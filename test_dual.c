@@ -27,6 +27,16 @@
 #include "acq.h"
 #include "sysdef.h"
 
+/*
+ * MODEL buffers are contiguous for all AI, DI, AO, DO
+ * ACQ buffers are split .. because there are more than one ACQ modules
+ *
+ * SCATTER XO from MODEL to ACQ :
+ *     split contiguous MODEL XO to component ACQ XO
+ *
+ *  GATHER XI from ACQ to MODEL :
+ *     join component ACQ XI to MODEL XO
+ */
 
 int main(int argc, char* argv[])
 {
@@ -37,7 +47,6 @@ ST40PCS_Y;
 #endif
 #include "ST40PCS_if.h"
 	int sample;
-	int ii;
 	ACQ* acq0;
 	ACQ* acq1;
 	union VI_OVERLAY* VI = (union VI_OVERLAY*)ST40PCS_U.DTACQIN;
@@ -84,12 +93,6 @@ ST40PCS_Y;
 		memcpy(VI->ACQ.ST1, acq1->lbuf+ASI_LUN1_ST, LUN1_ST*US);
 
 		ST40PCS_step();
-
-		if(verbose > 3 && sample<20) {		/* do not print in RT mode */
-			for (ii=0; ii<34; ii+=1) {
-				printf("Sample %d  II %d IN %d OUT %d\n",sample,ii,ST40PCS_U.DTACQIN[ii],ST40PCS_Y.DTACQOUT[ii]);
-			}
-		}
 	}
 
 	ST40PCS_terminate();
