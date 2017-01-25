@@ -108,7 +108,7 @@ static void _log_DO(ACQ* acq)
 {
 	int do_sz = DO_SZ(acq);
 	if (do_sz){
-		unsigned* do_cursor = acq->DO_log + acq->sample*do_sz;
+		unsigned* do_cursor = acq->DO_log + acq->sample*acq->ndo;
 		memcpy(do_cursor, acq->DO, do_sz);
 	}
 }
@@ -116,7 +116,7 @@ static void _log_AO(ACQ* acq)
 {
 	int ao_sz = AO_SZ(acq);
 	if (ao_sz){
-		short* ao_cursor = acq->AO_log + acq->sample*ao_sz;
+		short* ao_cursor = acq->AO_log + acq->sample*acq->nao;
 		memcpy(ao_cursor, acq->AO, ao_sz);
 	}
 }
