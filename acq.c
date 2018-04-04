@@ -36,6 +36,9 @@ static ACQ* createACQ(int lun);
 #define DECIMATE 1
 int decimate;
 
+#define AO_SZ(acq) 		((acq)->nao * sizeof(short))
+#define DO_SZ(acq) 		((acq)->ndo * sizeof(unsigned))
+#define CALC_SZ(acq)  	((acq)->ncalc * sizeof(unsigned))
 
 #ifdef ST40_ACQ
 #include <errno.h>
@@ -54,8 +57,7 @@ int decimate;
 
 extern int errno;
 
-#define AO_SZ(acq) ((acq)->nao * sizeof(short))
-#define DO_SZ(acq) ((acq)->ndo * sizeof(unsigned))
+
 
 
 void* get_mapping(ACQ* acq) {
@@ -120,10 +122,20 @@ static void _log_AO(ACQ* acq)
 		memcpy(ao_cursor, acq->AO, ao_sz);
 	}
 }
+
+static void _log_CALC(ACQ* acq)
+{
+	int calc_sz = CALC_SZ(acq);
+	if (calc_sz){
+		unsigned* calc_cursor = acq->CALC_log + acq->sample*acq->ncalc;
+		memcpy(calc_cursor, acq->CALC, calc_sz);
+	}
+}
 void log_XO(ACQ* acq)
 {
 	_log_AO(acq);
 	_log_DO(acq);
+	_log_CALC(acq);
 }
 
 void acq_IO(ACQ* acq)
@@ -217,6 +229,40 @@ static void stash_DO(ACQ* acq)
 	free(acq->DO_log);
 }
 
+static void stash_CALC(ACQ* acq)
+/* stores CALC as a column of u32.  */
+/* stores binary file per channel */
+{
+	char fname[80];
+	FILE** fp = calloc(acq->ncalc, sizeof(FILE*));
+	int ic;
+	int isam;
+	unsigned *cursor = acq->CALC_log;
+
+	for (ic = 0; ic < acq->ncalc; ++ic){
+		sprintf(fname, "LOG/%s.%d.CALC.%03d", FLAVOUR, acq->lun, ic);
+		fp[ic] = fopen(fname, "w");
+		if (fp[ic] == 0){
+			perror(fname);
+			exit(1);
+		}
+	}
+
+	for (isam = 0; isam < acq->sample; ++isam){
+		for (ic = 0; ic < acq->nao; ++ic){
+			/* fwrite() is buffered, so not quite as inefficient
+			 * as it looks..
+			 */
+			fwrite(cursor++, sizeof(unsigned), 1, fp[ic]);
+		}
+	}
+	for (ic = 0; ic < acq->nao; ++ic){
+		fclose(fp[ic]);
+	}
+	free(fp);
+	free(acq->CALC_log);
+}
+
 static void _stash_AO(ACQ *acq)
 /* stores binary file per channel */
 {
@@ -261,6 +307,7 @@ void acq_terminate(ACQ* acq)
 	stash_stats(acq);
 	stash_AO(acq);
 	stash_DO(acq);
+	stash_CALC(acq);
 	munmap(acq->VI, HB_LEN);
 	close(acq->fd);
 }
@@ -311,6 +358,8 @@ ACQ* createACQ(int lun)
 	acq->ndi = lun==0? GETENVINT(LUN0_DI): GETENVINT(LUN1_DI);
 	acq->nao = lun==0? GETENVINT(LUN0_AO): GETENVINT(LUN1_AO);
 	acq->ndo = lun==0? GETENVINT(LUN0_DO): GETENVINT(LUN1_DO);
+	acq->ncalc = lun==0? GETENVINT(LUN0_CALC): 0;
+
 	decimate = GETENVINT(DECIMATE);
 
 	xi_len = (acq->nai)*sizeof(short) + (acq->ndi)*sizeof(unsigned);
@@ -325,11 +374,15 @@ ACQ* createACQ(int lun)
 	acq->lbuf = calloc(acq->vi_len, 1);
 	acq->lbuf_status = (unsigned*)(acq->lbuf + (lun==0? ASI_LUN0_ST: ASI_LUN1_ST));
 	acq->ts = calloc(N_iter, sizeof(struct TS));
-	if (AO_SZ(acq)){
+	if (AO_SZ(acq) != 0){
 		acq->AO_log = calloc(N_iter, AO_SZ(acq));
 	}
-	if (DO_SZ(acq)){
+	if (DO_SZ(acq) != 0){
 		acq->DO_log = calloc(N_iter, DO_SZ(acq));
+	}
+	if (CALC_SZ(acq) != 0){
+		acq->CALC_log = calloc(N_iter, CALC_SZ(acq));
+		acq->CALC = acq->CALC_log;
 	}
 	return acq;
 }

@@ -78,6 +78,7 @@ ST40PCS_Y;
 		pmemcpy(acq0->DO, VO->ACQ.DO0, LUN0_DO*US);
 		pmemcpy(acq1->AO, VO->ACQ.AO1, LUN1_AO*SS);
 		pmemcpy(acq1->DO, VO->ACQ.DO1, LUN1_DO*US);
+		pmemcpy(acq0->CALC, VO->ACQ.CALC, MAX_CALC*US);
 		log_XO(acq0);
 		log_XO(acq1);
 

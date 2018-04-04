@@ -52,6 +52,9 @@ typedef struct ACQ {
 	short *AO_log;		// log AO's for future store to file
 	unsigned *DO_log;	// log DO's for future store to file
 	unsigned* lbuf_status;	// stats, stored for copy to MODEL.
+
+	unsigned* CALC; int ncalc; 		// calculation values - log to file DO NOT send to ACQ!
+	unsigned *CALC_log;
 } ACQ;
 
 ACQ* acq_init(int lun);

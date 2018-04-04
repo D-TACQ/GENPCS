@@ -85,7 +85,9 @@ union VI_OVERLAY {
 #define MAX_AO_PER_BOX	(1*32)		// channels
 #define MAX_DO_PER_BOX  (4)		// 32 bit values
 
-#define VO_SHORTS	(2*MAX_AO_PER_BOX + 2*MAX_DO_PER_BOX)
+#define MAX_CALC	(32)		// number of CALC values (4 byte, could be unsigned or float)
+
+#define VO_SHORTS	(2*MAX_AO_PER_BOX + 2*MAX_DO_PER_BOX + MAX_CALC)
 
 /** define an overlay for the MODEL and ACQ definitions of the
  * Output Vector VO
@@ -98,6 +100,7 @@ union VO_OVERLAY {
 		short AO2[MAX_AO_PER_BOX];   // expansion possible in BOX2
 		u32 DO0[MAX_DO_PER_BOX];
 		u32 DO1[MAX_DO_PER_BOX];
+		u32 CALC[MAX_CALC];
 	} ACQ;
 };
 

@@ -41,6 +41,7 @@
 #define LUN0_AO 0
 #define LUN0_DO 1
 #define LUN0_ST 4
+#define LUN0_CALC 32
 
 /** ASI : ACQ Short Index .. index in shorts */
 #define ASI_LUN0_AI	0
@@ -52,6 +53,7 @@
 #define LUN1_AO 32
 #define LUN1_DO 1
 #define LUN1_ST 4
+#define LUN1_CALC 0
 
 #define ASI_LUN1_AI	0
 #define ASI_LUN1_DI	LUN1_AI
