@@ -272,8 +272,11 @@ static void _stash_AO(ACQ *acq)
 	int isam;
 	short *cursor = acq->AO_log;
 
+	printf("stashing AO\n");
+	printf("%d\n",acq->nao);
+	
 	for (ic = 0; ic < acq->nao; ++ic){
-		sprintf(fname, "LOG/%s.%d.AO.%03d", FLAVOUR, acq->lun, ic);
+		sprintf(fname, "LOG/%s.%d.AO.%03d", FLAVOUR, acq->lun, ic+1);
 		fp[ic] = fopen(fname, "w");
 		if (fp[ic] == 0){
 			perror(fname);
@@ -297,9 +300,11 @@ static void _stash_AO(ACQ *acq)
 }
 static void stash_AO(ACQ *acq)
 {
-	if (AO_SZ(acq) == 0) return
+  //if (AO_SZ(acq) == 0) return
+  printf("in stash_AO\n");
+  //  printf("acq %d, ao_sz=%d\n",acq,AO_SZ(acq));
 
-	_stash_AO(acq);
+  _stash_AO(acq);
 }
 
 void acq_terminate(ACQ* acq)
