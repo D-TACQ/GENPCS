@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- */
-/* sysdef.h  TEPCS support
+/* sysdef.h  GENPCS support
  * Project: AFHBA404
  * Created: 20 Jun 2016  			/ User: pgm
  * ------------------------------------------------------------------------- *
@@ -13,26 +13,27 @@
  * TODO
 \* ------------------------------------------------------------------------- */
 
-#ifndef TE_SYSDEF_H_
-#define TE_SYSDEF_H_
+#ifndef GEN_SYSDEF_H_
+#define GEN_SYSDEF_H_
 
 /* System Definitions */
 
-#if defined(ST40_ACQ) && defined(ST40_MOD)
-	#define FLAVOUR "Thames"
+#if defined(GEN_ACQ) && defined(GEN_MOD)
+	#define FLAVOUR "ACQ_MOD"
 #else
-	#if defined(ST40_ACQ)
-		#define FLAVOUR "Clyde"
-	#elif defined (ST40_MOD)
-		#define FLAVOUR "Rhone"
+	#if defined(GEN_ACQ)
+		#define FLAVOUR "ACQ"
+	#elif defined (GEN_MOD)
+		#define FLAVOUR "MOD"
 	#else
-		#define FLAVOUR "Limpopo"
+		#define FLAVOUR "FAIL"
 	#endif
 #endif
 
-
-#define LUN_MAG	0
-#define LUN_PSU 1
+/* LUN : Logical unit numbers of the 3 boxes /dev/afhba.$LUN.* */
+#define LUN_ALPHA	0
+#define LUN_BRAVO	1
+#define LUN_CHARLIE	2
 
 /* both boxes fake full complement of IO, so are the same */
 
@@ -59,7 +60,7 @@
 #define ASI_LUN1_DI	LUN1_AI
 #define ASI_LUN1_ST	(ASI_LUN1_DI+2)
 
-/* MODEL definition : MUST MATCH ST40PCS.h */
+/* MODEL definition : MUST MATCH GENPCS.h */
 
 #define MODEL_AI 256	/* shorts */
 #define MODEL_DI 2	/* u32 */
@@ -71,4 +72,4 @@
 #define MODEL_VI_LEN	(MODEL_AI*SS + MODEL_DI*US + MODEL_ST*US)
 #define MODEL_VO_LEN	(MODEL_AO*SS + MODEL_DO*US)
 
-#endif /* TE_SYSDEF_H_ */
+#endif /* GEN_SYSDEF_H_ */

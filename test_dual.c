@@ -20,8 +20,8 @@
 
 
 
-#ifndef ST40_MOD
-#include "ST40PCS_stub.h"
+#ifndef GEN_MOD
+#include "GENPCS_stub.h"
 #endif
 
 #include "acq.h"
@@ -40,26 +40,21 @@
 
 int main(int argc, char* argv[])
 {
-#ifdef ST40_MOD
-#include "ST40PCS.h" // don't understand why this has to be in the braces, but it seems to
-ST40PCS_U;
-ST40PCS_Y;
-#endif
-#include "ST40PCS_if.h"
+#include "GENPCS_if.h"
 	int sample;
 	ACQ* acq0;
 	ACQ* acq1;
-	union VI_OVERLAY* VI = (union VI_OVERLAY*)ST40PCS_U.DTACQIN;
-	union VO_OVERLAY* VO = (union VO_OVERLAY*)ST40PCS_Y.DTACQOUT;
+	union VI_OVERLAY* VI = (union VI_OVERLAY*)GENPCS_U.DTACQIN;
+	union VO_OVERLAY* VO = (union VO_OVERLAY*)GENPCS_Y.DTACQOUT;
 
-	if (sizeof(ST40PCS_U.DTACQIN) != sizeof(union VI_OVERLAY)){
+	if (sizeof(GENPCS_U.DTACQIN) != sizeof(union VI_OVERLAY)){
 		fprintf(stderr, "ERROR: mismatch %s %lu != %lu\n",
-				"VI", sizeof(ST40PCS_U.DTACQIN), sizeof(union VI_OVERLAY));
+				"VI", sizeof(GENPCS_U.DTACQIN), sizeof(union VI_OVERLAY));
 		return 1;
 	}
-	if (sizeof(ST40PCS_Y.DTACQOUT) != sizeof(union VO_OVERLAY)){
+	if (sizeof(GENPCS_Y.DTACQOUT) != sizeof(union VO_OVERLAY)){
 		fprintf(stderr, "ERROR: mismatch %s %lu != %lu\n",
-				"VO", sizeof(ST40PCS_Y.DTACQOUT), sizeof(union VO_OVERLAY));
+				"VO", sizeof(GENPCS_Y.DTACQOUT), sizeof(union VO_OVERLAY));
 		return 1;
 	}
 
@@ -67,18 +62,18 @@ ST40PCS_Y;
 
 	dbg(1, "file %s flavour %s", __FILE__, FLAVOUR);
 
-	acq0 = acq_init(LUN_MAG);
-	acq1 = acq_init(LUN_PSU);
-	ST40PCS_initialize();
+	acq0 = acq_init(LUN_ALPHA);
+	acq1 = acq_init(LUN_BRAVO);
+	GENPCS_initialize();
 	goRealTime();
 
 	for (sample = 0; sample < N_iter; ++sample){
 		/* scatter XO from model to hardware */
-		pmemcpy(acq0->AO, VO->ACQ.AO0, LUN0_AO*SS);
-		pmemcpy(acq0->DO, VO->ACQ.DO0, LUN0_DO*US);
-		pmemcpy(acq1->AO, VO->ACQ.AO1, LUN1_AO*SS);
-		pmemcpy(acq1->DO, VO->ACQ.DO1, LUN1_DO*US);
-		pmemcpy(acq0->CALC, VO->ACQ.CALC, MAX_CALC*US);
+		memcpy(acq0->AO, VO->ACQ.AO0, LUN0_AO*SS);
+		memcpy(acq0->DO, VO->ACQ.DO0, LUN0_DO*US);
+		memcpy(acq1->AO, VO->ACQ.AO1, LUN1_AO*SS);
+		memcpy(acq1->DO, VO->ACQ.DO1, LUN1_DO*US);
+		memcpy(acq0->CALC, VO->ACQ.CALC, MAX_CALC*US);
 		log_XO(acq0);
 		log_XO(acq1);
 
@@ -93,10 +88,10 @@ ST40PCS_Y;
 		memcpy(VI->ACQ.DI1, acq1->lbuf+ASI_LUN1_DI, LUN1_DI*US);
 		memcpy(VI->ACQ.ST1, acq1->lbuf+ASI_LUN1_ST, LUN1_ST*US);
 
-		ST40PCS_step();
+		GENPCS_step();
 	}
 
-	ST40PCS_terminate();
+	GENPCS_terminate();
 	acq_terminate(acq0);
 	acq_terminate(acq1);
 	return 0;

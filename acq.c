@@ -40,7 +40,7 @@ int decimate;
 #define DO_SZ(acq) 		((acq)->ndo * sizeof(unsigned))
 #define CALC_SZ(acq)  	((acq)->ncalc * sizeof(unsigned))
 
-#ifdef ST40_ACQ
+#ifdef GEN_ACQ
 #include <errno.h>
 #include <fcntl.h>
 
@@ -392,7 +392,7 @@ ACQ* createACQ(int lun)
 	return acq;
 }
 
-static ACQ* acq_stack[2];
+static ACQ* acq_stack[4];
 
 void cleanup(int sig)
 {
