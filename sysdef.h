@@ -19,7 +19,7 @@
 /* System Definitions */
 
 #if defined(GEN_ACQ) && defined(GEN_MOD)
-	#define FLAVOUR "ACQ_MOD"
+	#define FLAVOUR "ACQ+MOD"
 #else
 	#if defined(GEN_ACQ)
 		#define FLAVOUR "ACQ"
@@ -34,6 +34,7 @@
 #define LUN_ALPHA	0
 #define LUN_BRAVO	1
 #define LUN_CHARLIE	2
+#define LUN_DELTA	3
 
 /* both boxes fake full complement of IO, so are the same */
 
