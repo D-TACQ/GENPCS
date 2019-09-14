@@ -38,6 +38,12 @@
 
 /* both boxes fake full complement of IO, so are the same */
 
+#define NAI	160		/* default AI count */
+#define NDI	1		/* default DI count 32 bit */
+#define NAO	32		/* default AO count */
+#define NDO	1		/* default DO count */
+#define NCALC	32		/* default number of calc variables to store */
+
 #define LUN0_AI	160
 #define LUN0_DI 1
 #define LUN0_AO 0

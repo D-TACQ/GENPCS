@@ -342,7 +342,20 @@ void acq_terminate(ACQ* acq)
 /* hack assumes key name and symbol name for default are the SAME .. */
 #define GETENVINT(key) getenv(#key)? atoi(getenv(#key)): key
 
+int getenvint_lun(int lun, int defnum, const char* typekey)
+{
+	char key[80];
+	const char* value;
+	sprintf(key, "LUN%d_%s", lun, typekey);
+	value = getenv(key);
+	if (value){
+		return atoi(value);
+	}else{
+		return defnum;
+	}
+}
 
+#define GETENVINT3(lun, typ)  getenvint_lun(lun, typ, #typ)
 
 int roundup(int len, int segsize)
 {
@@ -359,11 +372,12 @@ ACQ* createACQ(int lun)
 	int xo_len;
 
 	acq->lun = lun;
-	acq->nai = lun==0? GETENVINT(LUN0_AI): GETENVINT(LUN1_AI);
-	acq->ndi = lun==0? GETENVINT(LUN0_DI): GETENVINT(LUN1_DI);
-	acq->nao = lun==0? GETENVINT(LUN0_AO): GETENVINT(LUN1_AO);
-	acq->ndo = lun==0? GETENVINT(LUN0_DO): GETENVINT(LUN1_DO);
-	acq->ncalc = lun==0? GETENVINT(LUN0_CALC): 0;
+	acq->nai = GETENVINT3(lun, NAI);
+
+	acq->ndi = GETENVINT3(lun, NDI);
+	acq->nao = GETENVINT3(lun, NAO);
+	acq->ndo = GETENVINT3(lun, NDO);
+	acq->ncalc = GETENVINT3(lun, NCALC);
 
 	decimate = GETENVINT(DECIMATE);
 
