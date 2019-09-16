@@ -62,8 +62,8 @@ int main(int argc, char* argv[])
 
 	dbg(1, "file %s flavour %s", __FILE__, FLAVOUR);
 
-	acq0 = acq_init(LUN_ALPHA);
-	acq1 = acq_init(LUN_BRAVO);
+	acq0 = acq_CREATE(LUN_ALPHA);
+	acq1 = acq_CREATE(LUN_BRAVO);
 	GENPCS_initialize();
 	goRealTime();
 

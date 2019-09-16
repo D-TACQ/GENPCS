@@ -3,13 +3,7 @@
  *
  *  Created on: 13 Sep 2019
  *      Author: pgm
- */
-
-
-/* ------------------------------------------------------------------------- */
-/* file test_dual.c                                                                 */
-/* ------------------------------------------------------------------------- */
-/*   Copyright (C) 2016 Peter Milne, D-TACQ Solutions Ltd
+ *   Copyright (C) 2019 Peter Milne, D-TACQ Solutions Ltd
  *                      <Peter dot Milne at D hyphen TACQ dot com>
 
     http://www.d-tacq.com
@@ -19,7 +13,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 */
 /* ------------------------------------------------------------------------- */
 
-/** @file test_dual.c  interface for MODEL
+/** @file test_multi.c  interface for MODEL
  * Refs:
 */
 
@@ -107,7 +101,7 @@ int make_gather_defs(ACQ *acq, int cursor, union VI_OVERLAY* VI)
 void ui(int argc, char* argv[], union VI_OVERLAY* VI, union VO_OVERLAY* VO)
 {
 	for (int ii = 1; ii < argc; ++ii, ++iteam){
-		ACQ* acq = acq_init(atoi(argv[ii]));
+		ACQ* acq = acq_CREATE(atoi(argv[ii]));
 
 		iscatter = make_scatter_defs(acq, iscatter, VO);
 		igather = make_gather_defs(acq, igather, VI);
@@ -136,6 +130,7 @@ int main(int argc, char* argv[])
 
 	GENPCS_initialize();
 	goRealTime();
+	FOREACHUUT(acq_INIT);
 
 	for (int sample = 0; sample < N_iter; ++sample){
 		memcpy_group(scatter_defs, iscatter);	/* scatter XO from model to hardware 	*/

@@ -79,7 +79,7 @@ void* get_mapping(ACQ* acq) {
 	return host_buffer;
 }
 
-ACQ* __acq_init(ACQ* acq)
+void acq_INIT(ACQ* acq)
 {
 	struct XLLC_DEF xllc_def = {
 		.pa = RTM_T_USE_HOSTBUF,
@@ -103,7 +103,6 @@ ACQ* __acq_init(ACQ* acq)
 	dbg(1, "AO buf pa: 0x%08x len %d\n", xllc_def.pa, xllc_def.len);
 
 	acq->pao = xllc_def.pa;
-	return acq;
 }
 
 static void _log_DO(ACQ* acq)
@@ -419,7 +418,7 @@ void cleanup(int sig)
 	exit(1);
 }
 
-ACQ* _acq_init(int lun)
+ACQ* _acq_CREATE(int lun)
 {
 	ACQ* acq = createACQ(lun);
 
@@ -434,15 +433,15 @@ ACQ* _acq_init(int lun)
 	acq->VO = acq->AO = (short*)((char*)acq->VI+HB_LEN);
 	acq->DO = (unsigned*)(acq->VO+acq->nao);
 
-	return __acq_init(acq);
+	return acq;
 }
 
-ACQ* acq_init(int lun)
+ACQ* acq_CREATE(int lun)
 {
 	ACQ* acq;
 	signal(SIGINT, cleanup);
 	dbg(2, "file %s flavour %s", __FILE__, FLAVOUR);
-	acq = _acq_init(lun);
+	acq = _acq_CREATE(lun);
 	if (lun < 2){
 		acq_stack[lun] = acq;
 	}

@@ -55,7 +55,7 @@ GENPCS_Y;		// ditto
 
 	dbg(1, "file %s flavour %s %s", __FILE__, FLAVOUR, MEMCPY);
 
-	acq0 = acq_init(G_lun);
+	acq0 = acq_CREATE(G_lun);
 	GENPCS_initialize();
 
 	dbg(1, "Starting");

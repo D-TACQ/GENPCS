@@ -57,7 +57,8 @@ typedef struct ACQ {
 	unsigned *CALC_log;
 } ACQ;
 
-ACQ* acq_init(int lun);
+ACQ* acq_CREATE(int lun);		/* craete local objects */
+void acq_INIT(ACQ* acq);		/* initialise buffers with device driver */
 void acq_IO(ACQ* acq);			/* blocks until next sample */
 void log_XO(ACQ* acq);			/* stash current sample XO */
 void acq_terminate(ACQ* acq);
